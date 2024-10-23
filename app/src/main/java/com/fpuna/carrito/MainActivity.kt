@@ -29,15 +29,18 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ){
                     val dataBase = Room.databaseBuilder(this, AppDataBase::class.java, "db_carrito").build()
-                    val dao = dataBase.categoriaDao()
+                    val categoriaDao = dataBase.categoriaDao()
+                    val productoDao = dataBase.productoDao() // Asegúrate de tener este DAO implementado
 
-                    val viewModel = CategoriaViewModel(dao)
+                    val categoriaViewModel = CategoriaViewModel(categoriaDao)
+                    val productoViewModel = ProductoViewModel(productoDao) // Instancia del ProductoViewModel
 
-                    NavManager(viewModel)
+                    NavManager(categoriaViewModel, productoViewModel) // Pasa ambos ViewModels
                 }
 
             }
         }
     }
 }
+
 

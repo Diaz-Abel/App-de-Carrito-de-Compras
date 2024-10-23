@@ -121,4 +121,13 @@ fun ContentInicioView(
             }
         }
     }
+
+    Button(
+        onClick = { navController.navigate("listar") }, // Navega a la lista de productos
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(text = "Ver Productos")
+    }
 }
