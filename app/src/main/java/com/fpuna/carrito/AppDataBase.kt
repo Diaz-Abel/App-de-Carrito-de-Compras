@@ -12,11 +12,8 @@ import com.fpuna.carrito.daos.CategoriaDao
  * definir un método abstracto que tenga cero argumentos y muestre una instancia de
  * la clase DAO.
  */
-@Database(
-    entities = [Categoria::class],
-    version = 1,
-    exportSchema = false
-)
-abstract class AppDataBase : RoomDatabase() {
+@Database(entities = [Categoria::class, Producto::class], version = 1, exportSchema = false)
+abstract class AppDatabase : RoomDatabase() {
     abstract fun categoriaDao(): CategoriaDao
+    abstract fun productoDao(): ProductoDao
 }
