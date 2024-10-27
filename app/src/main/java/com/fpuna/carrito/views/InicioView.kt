@@ -1,41 +1,22 @@
 package com.fpuna.carrito.views
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.motionEventSpy
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.navigation.NavController
+import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,7 +26,7 @@ fun InicioView(navController: NavController, viewModel: CategoriaViewModel) {
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text("Inicio view", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Inicio", color = Color.White, fontWeight = FontWeight.Bold)
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary
@@ -61,73 +42,61 @@ fun InicioView(navController: NavController, viewModel: CategoriaViewModel) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Agregar")
             }
         }
-    ) {
-        ContentInicioView(
-            it, navController, viewModel
-        )
+    ) { paddingValues ->
+        ContentInicioView(paddingValues, navController, viewModel)
     }
 }
 
 @Composable
 fun ContentInicioView(
-    it: PaddingValues,
+    paddingValues: PaddingValues,
     navController: NavController,
     viewModel: CategoriaViewModel
 ) {
     val state = viewModel.state
-    Column(modifier = Modifier.padding(it)) {
+
+    Column(modifier = Modifier.padding(paddingValues)) {
         LazyColumn {
-            items(state.listaCategorias) {
-                Box(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth()
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(12.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(), // para que ocupe el anchor de la columna
-                            horizontalArrangement = Arrangement.SpaceBetween, // espacios entre los elementos
-                            verticalAlignment = Alignment.CenterVertically // centra los elementos verticalmente
-                        ) {
-                            IconButton(onClick = { navController.navigate("editar/${it.id}/${it.name}") }) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Editar"
-                                )
-                            }
-                            //Text(text = it.name, textAlign = TextAlign.Left)
-                            Spacer(modifier = Modifier.width(8.dp)) // Espacio entre ícono y texto
-
-                            Text(
-                                text = it.name,
-                                modifier = Modifier.weight(1f), // Ocupa el espacio restante entre los íconos
-                                textAlign = TextAlign.Left // Alineado a la izquierda
-                            )
-                            IconButton(onClick = { viewModel.borrarCategoria(it) }) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Borrar"
-                                )
-                            }
-                        }
-
-                    }
-                }
+            items(state.listaCategorias) { categoria ->
+                CategoriaItem(
+                    categoria = categoria,
+                    navController = navController,
+                    viewModel = viewModel
+                )
             }
         }
-    }
 
-    Button(
-        onClick = { navController.navigate("listar") }, // Navega a la lista de productos
+        // Botón para ver la lista de productos
+        Button(
+            onClick = { navController.navigate("listar") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(text = "Ver Productos")
+        }
+    }
+}
+
+@Composable
+fun CategoriaItem(categoria: Categoria, navController: NavController, viewModel: CategoriaViewModel) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Ver Productos")
+        Text(
+            text = categoria.name,
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.Left
+        )
+        IconButton(onClick = { navController.navigate("editar/${categoria.id}/${categoria.name}") }) {
+            Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar")
+        }
+        IconButton(onClick = { viewModel.borrarCategoria(categoria) }) {
+            Icon(imageVector = Icons.Default.Delete, contentDescription = "Borrar")
+        }
     }
 }

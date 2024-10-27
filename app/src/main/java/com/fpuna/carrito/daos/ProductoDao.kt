@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import androidx.room.*
+import com.fpuna.carrito.models.Producto
 
 @Dao
 interface ProductoDao {
@@ -15,8 +16,8 @@ interface ProductoDao {
     @Update
     suspend fun update(producto: Producto)
 
-    @Delete
-    suspend fun delete(producto: Producto)
+    @Query("DELETE FROM productos WHERE idProducto = :id")
+    suspend fun deleteById(id: Int)
 
     @Query("SELECT * FROM productos ORDER BY nombre ASC")
     fun getAllProductos(): LiveData<List<Producto>>

@@ -1,5 +1,6 @@
 [versions]
 agp = "8.6.0"
+composeBomVersion = "2023.10.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -8,12 +9,21 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.9.3"
 composeBom = "2024.04.01"
+media3CommonKtxVersion = "1.4.2"
+navigationComposeVersion = "2.7.0"
 roomCompilerVersion = "2.6.1"
 navigationCompose = "2.8.3"
+media3CommonKtx = "1.4.1"
 
 [libraries]
+androidx-compose-bom-v2023100 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
+androidx-media3-common-ktx-v142 = { module = "androidx.media3:media3-common-ktx", version.ref = "media3CommonKtxVersion" }
+androidx-navigation-compose-v270 = { module = "androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCompilerVersion" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCompilerVersion" }
+androidx-runtime = { module = "androidx.compose.runtime:runtime" }
+material3 = { module = "androidx.compose.material3:material3" }
+navigation-compose = { module = "androidx.navigation:navigation-compose" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompilerVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -30,6 +40,9 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+ui = { module = "androidx.compose.ui:ui" }
+ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
