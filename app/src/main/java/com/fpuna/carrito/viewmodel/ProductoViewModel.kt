@@ -34,7 +34,7 @@ class ProductoViewModel(private val dao: ProductoDao) : ViewModel() {
         dao.update(producto = producto)
     }
 
-    fun eliminarProducto(idProducto: Int) = viewModelScope.launch {
+    fun eliminarProducto(idProducto: Long) = viewModelScope.launch {
         dao.deleteById(idProducto)
     }
 

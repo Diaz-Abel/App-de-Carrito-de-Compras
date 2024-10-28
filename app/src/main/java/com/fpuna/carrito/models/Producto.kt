@@ -13,7 +13,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class Producto(
-    @PrimaryKey(autoGenerate = true) val idProducto: Int = 0,
+    @PrimaryKey(autoGenerate = true) val idProducto: Long = 0,
     val nombre: String,
     val idCategoria: Int, // Referencia a la categoría
     val precioVenta: Double

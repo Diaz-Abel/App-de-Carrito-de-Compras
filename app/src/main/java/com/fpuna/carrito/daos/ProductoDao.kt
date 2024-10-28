@@ -17,7 +17,7 @@ interface ProductoDao {
     suspend fun update(producto: Producto)
 
     @Query("DELETE FROM productos WHERE idProducto = :id")
-    suspend fun deleteById(id: Int)
+    suspend fun deleteById(id: kotlin.Long)
 
     @Query("SELECT * FROM productos ORDER BY nombre ASC")
     fun getAllProductos(): LiveData<List<Producto>>

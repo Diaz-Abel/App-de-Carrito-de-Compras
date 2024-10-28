@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.text.style.TextAlign
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
@@ -74,6 +75,15 @@ fun ContentInicioView(
                 .padding(16.dp)
         ) {
             Text(text = "Ver Productos")
+        }
+        // Botón para la venta
+        Button(
+            onClick = { navController.navigate("venta") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp) // Padding para separar
+        ) {
+            Text(text = "Ir a Venta")
         }
     }
 }

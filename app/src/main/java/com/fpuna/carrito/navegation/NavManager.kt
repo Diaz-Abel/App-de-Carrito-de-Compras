@@ -8,18 +8,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
 import com.fpuna.carrito.viewmodel.ProductoViewModel
+import com.fpuna.carrito.viewmodel.VentaViewModel
 import com.fpuna.carrito.views.AgregarView
 import com.fpuna.carrito.views.EditarView
 import com.fpuna.carrito.views.InicioView
 import com.fpuna.carrito.views.AgregarProductoView
 import com.fpuna.carrito.views.EditarProductoView
 import com.fpuna.carrito.views.ListarProductosView
+import com.fpuna.carrito.views.VentaView
 
 @Composable
-fun NavManager(categoriaViewModel: CategoriaViewModel, productoViewModel: ProductoViewModel) {
+fun NavManager(categoriaViewModel: CategoriaViewModel, productoViewModel: ProductoViewModel, ventaViewModel: VentaViewModel) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "inicio") {
@@ -28,6 +29,10 @@ fun NavManager(categoriaViewModel: CategoriaViewModel, productoViewModel: Produc
         }
         composable(route = "agregar") {
             AgregarView(navController, categoriaViewModel)
+        }
+        composable("venta") {
+            val categorias = categoriaViewModel.state.listaCategorias
+            VentaView(navController, productoViewModel, ventaViewModel, categorias)
         }
         composable(
             route = "editar/{id}/{name}",
@@ -63,7 +68,7 @@ fun NavManager(categoriaViewModel: CategoriaViewModel, productoViewModel: Produc
             val id = it.arguments!!.getInt("id")
             val nombre = it.arguments!!.getString("nombre")!!
 
-            val producto = productoViewModel.state.listaProductos.find { it.idProducto == id }
+            val producto = productoViewModel.state.listaProductos.find { it.idProducto.toInt() == id }
 
             if (producto != null) {
                 EditarProductoView(
