@@ -17,13 +17,12 @@ class ProductoViewModel(private val dao: ProductoDao) : ViewModel() {
         private set
 
     init {
-        viewModelScope.launch {
-            dao.getAll().collectLatest { productos ->
-                state = state.copy(
-                    // actualiza el estado de la lista de productos
-                    listaProductos = productos
-                )
-            }
+        // Observa el LiveData
+        dao.getAllProductos().observeForever { productos ->
+            state = state.copy(
+                // Actualiza el estado de la lista de productos
+                listaProductos = productos
+            )
         }
     }
 
@@ -35,7 +34,8 @@ class ProductoViewModel(private val dao: ProductoDao) : ViewModel() {
         dao.update(producto = producto)
     }
 
-    fun borrarProducto(producto: Producto) = viewModelScope.launch {
-        dao.delete(producto = producto)
+    fun eliminarProducto(idProducto: Int) = viewModelScope.launch {
+        dao.deleteById(idProducto)
     }
+
 }

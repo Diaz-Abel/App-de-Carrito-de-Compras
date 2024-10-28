@@ -17,6 +17,7 @@ import androidx.room.Room
 import com.fpuna.carrito.navegation.NavManager
 import com.fpuna.carrito.ui.theme.CarritoTheme
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
+import com.fpuna.carrito.viewmodel.ProductoViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +29,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ){
-                    val dataBase = Room.databaseBuilder(this, AppDataBase::class.java, "db_carrito").build()
+                    val dataBase = Room.databaseBuilder(this, AppDatabase::class.java, "db_carrito").build()
                     val categoriaDao = dataBase.categoriaDao()
                     val productoDao = dataBase.productoDao() // Asegúrate de tener este DAO implementado
 

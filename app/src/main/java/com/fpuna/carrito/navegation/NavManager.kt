@@ -1,11 +1,14 @@
 package com.fpuna.carrito.navegation
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
 import com.fpuna.carrito.viewmodel.ProductoViewModel
 import com.fpuna.carrito.views.AgregarView
@@ -43,10 +46,12 @@ fun NavManager(categoriaViewModel: CategoriaViewModel, productoViewModel: Produc
 
         // Navegación para productos
         composable(route = "listar") {
-            ListarProductosView(navController, productoViewModel)
+            val categorias = categoriaViewModel.state.listaCategorias
+            ListarProductosView(navController, productoViewModel, categorias)
         }
-        composable(route = "agregarProducto") {
-            AgregarProductoView(navController, productoViewModel)
+        composable(route = "agregarProducto") { backStackEntry ->
+            val categorias = categoriaViewModel.state.listaCategorias // Obtener las categorías del ViewModel
+            AgregarProductoView(navController, productoViewModel, categorias)
         }
         composable(
             route = "editarProducto/{id}/{nombre}",
@@ -55,12 +60,22 @@ fun NavManager(categoriaViewModel: CategoriaViewModel, productoViewModel: Produc
                 navArgument(name = "nombre") { type = NavType.StringType; defaultValue = "Sin Especificar" }
             )
         ) {
-            EditarProductoView(
-                navController,
-                productoViewModel,
-                it.arguments!!.getInt("id"),
-                it.arguments!!.getString("nombre")!!
-            )
+            val id = it.arguments!!.getInt("id")
+            val nombre = it.arguments!!.getString("nombre")!!
+
+            val producto = productoViewModel.state.listaProductos.find { it.idProducto == id }
+
+            if (producto != null) {
+                EditarProductoView(
+                    paddingValues = PaddingValues(),
+                    navController = navController,
+                    productoViewModel = productoViewModel,
+                    categoriaViewModel = categoriaViewModel,
+                    producto = producto
+                )
+            } else {
+                Text("Producto no encontrado")
+            }
         }
     }
 }
