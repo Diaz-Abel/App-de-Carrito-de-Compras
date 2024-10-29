@@ -1,7 +1,6 @@
-package com.fpuna.carrito.views
+package com.fpuna.carrito.views.categoria
 
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,7 +34,12 @@ import com.fpuna.carrito.viewmodel.CategoriaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditarView(navController: NavController, viewModel: CategoriaViewModel, id: Int, name: String) {
+fun EditarCategoriaView(
+    navController: NavController,
+    viewModel: CategoriaViewModel,
+    id: Int,
+    name: String
+) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
