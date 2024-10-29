@@ -1,24 +1,43 @@
-package com.fpuna.carrito.views
+package com.fpuna.carrito.views.producto
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.fpuna.carrito.models.Producto
-import com.fpuna.carrito.viewmodel.ProductoViewModel
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.fpuna.carrito.models.Categoria
+import com.fpuna.carrito.models.Producto
+import com.fpuna.carrito.viewmodel.ProductoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +97,11 @@ fun ListarProductosView(
             } else {
                 LazyColumn {
                     items(productos) { producto ->
-                        ProductoItem(producto, navController, listaCategorias, onDelete = { eliminarProducto(it) })
+                        ProductoItem(
+                            producto,
+                            navController,
+                            listaCategorias,
+                            onDelete = { eliminarProducto(it) })
                     }
                 }
             }
@@ -88,7 +111,12 @@ fun ListarProductosView(
 
 
 @Composable
-fun ProductoItem(producto: Producto, navController: NavController, listaCategorias: List<Categoria>, onDelete: (Producto) -> Unit) {
+fun ProductoItem(
+    producto: Producto,
+    navController: NavController,
+    listaCategorias: List<Categoria>,
+    onDelete: (Producto) -> Unit
+) {
     val categoria = listaCategorias.find { it.id == producto.idCategoria }
 
     Card(
@@ -104,8 +132,14 @@ fun ProductoItem(producto: Producto, navController: NavController, listaCategori
             horizontalAlignment = Alignment.Start
         ) {
             Text(text = producto.nombre, style = MaterialTheme.typography.titleMedium)
-            Text(text = "Precio: ${producto.precioVenta} gs", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Categoría: ${categoria?.name ?: "Sin categoría"}", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = "Precio: ${producto.precioVenta} gs",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Categoría: ${categoria?.name ?: "Sin categoría"}",
+                style = MaterialTheme.typography.bodyMedium
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 

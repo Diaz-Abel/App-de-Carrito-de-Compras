@@ -1,42 +1,57 @@
 package com.fpuna.carrito.navegation
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.fpuna.carrito.models.Categoria
+import com.fpuna.carrito.viewmodel.AppViewModelFactory
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
-import com.fpuna.carrito.viewmodel.ProductoViewModel
-import com.fpuna.carrito.views.AgregarView
-import com.fpuna.carrito.views.EditarView
-import com.fpuna.carrito.views.InicioView
-import com.fpuna.carrito.views.AgregarProductoView
-import com.fpuna.carrito.views.EditarProductoView
-import com.fpuna.carrito.views.ListarProductosView
+import com.fpuna.carrito.views.categoria.AgregarCategoriaView
+import com.fpuna.carrito.views.categoria.EditarCategoriaView
+import com.fpuna.carrito.views.categoria.InicioCategoriaView
 
 @Composable
-fun NavManager(categoriaViewModel: CategoriaViewModel, productoViewModel: ProductoViewModel) {
-    val navController = rememberNavController()
-
-    NavHost(navController = navController, startDestination = "inicio") {
+fun NavManager(
+    navController: NavHostController,
+    viewModelFactory: AppViewModelFactory,
+    modifier: Modifier
+) {
+    // Instancia de ViewModels que se necesita
+    val categoriaViewModel: CategoriaViewModel = viewModel(factory = viewModelFactory)
+    //val productoViewModel: ProductoViewModel = viewModel(factory = viewModelFactory)
+    NavHost(navController = navController, startDestination = "inicio", modifier = modifier) {
         composable(route = "inicio") {
-            InicioView(navController, categoriaViewModel)
+            // Fondo blanco temporal
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = androidx.compose.ui.graphics.Color.White
+            ) {
+                // Text("Inicio - Fondo Blanco Temporal")
+            }
+
+        }
+        composable(route = "inicioCategoria") {
+            InicioCategoriaView(navController, categoriaViewModel)
         }
         composable(route = "agregar") {
-            AgregarView(navController, categoriaViewModel)
+            AgregarCategoriaView(navController, categoriaViewModel)
         }
         composable(
             route = "editar/{id}/{name}",
             arguments = listOf(
                 navArgument(name = "id") { type = NavType.IntType },
-                navArgument(name = "name") { type = NavType.StringType; defaultValue = "Sin Especificar" }
+                navArgument(name = "name") {
+                    type = NavType.StringType; defaultValue = "Sin Especificar"
+                }
             )
         ) {
-            EditarView(
+            EditarCategoriaView(
                 navController,
                 categoriaViewModel,
                 it.arguments!!.getInt("id"),
@@ -44,20 +59,23 @@ fun NavManager(categoriaViewModel: CategoriaViewModel, productoViewModel: Produc
             )
         }
 
-        // Navegación para productos
+        /*// Navegación para productos
         composable(route = "listar") {
             val categorias = categoriaViewModel.state.listaCategorias
             ListarProductosView(navController, productoViewModel, categorias)
         }
         composable(route = "agregarProducto") { backStackEntry ->
-            val categorias = categoriaViewModel.state.listaCategorias // Obtener las categorías del ViewModel
+            val categorias =
+                categoriaViewModel.state.listaCategorias // Obtener las categorías del ViewModel
             AgregarProductoView(navController, productoViewModel, categorias)
         }
         composable(
             route = "editarProducto/{id}/{nombre}",
             arguments = listOf(
                 navArgument(name = "id") { type = NavType.IntType },
-                navArgument(name = "nombre") { type = NavType.StringType; defaultValue = "Sin Especificar" }
+                navArgument(name = "nombre") {
+                    type = NavType.StringType; defaultValue = "Sin Especificar"
+                }
             )
         ) {
             val id = it.arguments!!.getInt("id")
@@ -76,6 +94,6 @@ fun NavManager(categoriaViewModel: CategoriaViewModel, productoViewModel: Produc
             } else {
                 Text("Producto no encontrado")
             }
-        }
+        }*/
     }
 }
