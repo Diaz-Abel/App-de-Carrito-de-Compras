@@ -21,7 +21,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +37,7 @@ import com.fpuna.carrito.viewmodel.CategoriaViewModel
 
 @Composable
 fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewModel) {
+    var searchQuery by remember { mutableStateOf("") }
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -44,18 +50,35 @@ fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewMo
         }
     ) { paddingValues ->
 
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .padding(start = 16.dp, end = 16.dp)
                 .fillMaxSize()
         ) {
-            items(viewModel.state.listaCategorias) { categoria ->
-                CategoriaItem(
-                    categoria = categoria,
-                    navController = navController,
-                    viewModel = viewModel
-                )
+            // Campo de búsqueda
+            TextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("Buscar por nombre") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyColumn {
+                // Filtrar la lista de categorías
+                val filteredCategorias = viewModel.state.listaCategorias.filter {
+                    it.name.contains(searchQuery, ignoreCase = true)
+                }
+
+                items(filteredCategorias) { categoria ->
+                    CategoriaItem(
+                        categoria = categoria,
+                        navController = navController,
+                        viewModel = viewModel
+                    )
+                }
             }
         }
     }
