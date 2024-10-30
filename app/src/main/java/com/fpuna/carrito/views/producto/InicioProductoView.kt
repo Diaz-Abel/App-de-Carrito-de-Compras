@@ -22,9 +22,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -41,6 +45,8 @@ fun ListarProductosView(
     listaCategorias: List<Categoria>
 ) {
     val productos by productoViewModel.state.productosFlow.collectAsState()
+
+    var searchQuery by remember { mutableStateOf("") } // Estado para el texto de búsqueda
 
     // Función para manejar la eliminación de un producto
     fun eliminarProducto(producto: Producto) {
@@ -63,23 +69,39 @@ fun ListarProductosView(
                 .padding(start = 16.dp, end = 16.dp)
                 .fillMaxSize()
         ) {
+            // Campo de búsqueda
+            TextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("Buscar por nombre o categoría") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             if (productos.isEmpty()) {
                 Text("No hay productos disponibles.")
             } else {
                 LazyColumn {
-                    items(productos) { producto ->
+                    // Filtrar la lista de productos
+                    val filteredProductos = productos.filter { producto ->
+                        val categoria = listaCategorias.find { it.id == producto.idCategoria }
+                        producto.nombre.contains(searchQuery, ignoreCase = true) ||
+                                (categoria?.name?.contains(searchQuery, ignoreCase = true) == true)
+                    }
+                    items(filteredProductos) { producto ->
                         ProductoItem(
                             producto,
                             navController,
                             listaCategorias,
-                            onDelete = { eliminarProducto(it) })
+                            onDelete = { eliminarProducto(it) }
+                        )
                     }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun ProductoItem(
