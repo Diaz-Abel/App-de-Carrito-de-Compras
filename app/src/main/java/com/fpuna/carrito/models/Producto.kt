@@ -1,4 +1,5 @@
 package com.fpuna.carrito.models
+
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -9,7 +10,7 @@ import androidx.room.PrimaryKey
         entity = Categoria::class,
         parentColumns = ["id"], // Coincide con el campo en Categoria
         childColumns = ["idCategoria"],
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.NO_ACTION
     )]
 )
 data class Producto(

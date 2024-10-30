@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -30,6 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
@@ -48,9 +51,12 @@ class MainActivity : ComponentActivity() {
             Room.databaseBuilder(this, AppDatabase::class.java, "db_carrito").build()
         val categoriaDao = dataBase.categoriaDao()
         val productoDao = dataBase.productoDao()
-
+        val ventaDao = dataBase.ventaDao()
+        val clienteDao = dataBase.clienteDao()
+        val carritoDao = dataBase.carritoDao()
         // Crea el ViewModelFactory con daos necesarios
-        val viewModelFactory = AppViewModelFactory(categoriaDao, productoDao)
+        val viewModelFactory =
+            AppViewModelFactory(categoriaDao, productoDao, ventaDao, clienteDao, carritoDao)
 
         // sirve para configurar el contenido de la pantalla
         setContent {
@@ -85,7 +91,7 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     selected = false,
                     onClick = {
                         coroutineScope.launch { drawerState.close() }
-                        navController.navigate("inicio")
+                        navController.navigate("inicioVenta")
                         titulo = "Inicio"
                     }
                 )
@@ -134,6 +140,16 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                             Image(
                                 imageVector = Icons.Default.Menu,
                                 contentDescription = "Abrir menu"
+                            )
+                        }
+                    },
+                    actions = {
+                        // Agregar el ícono del carrito
+                        IconButton(onClick = { navController.navigate("carrito") }) {
+                            Image(
+                                imageVector = Icons.Filled.ShoppingCart,
+                                contentDescription = "Carrito de compras",
+                                colorFilter = ColorFilter.tint(Color.White) // Asegúrate de que el ícono sea blanco
                             )
                         }
                     }

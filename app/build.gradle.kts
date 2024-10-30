@@ -54,6 +54,7 @@ dependencies {
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.benchmark.macro)
     annotationProcessor(libs.room.compiler)
     // To use Kotlin Symbol Processing (KSP)
     ksp(libs.room.compiler)
