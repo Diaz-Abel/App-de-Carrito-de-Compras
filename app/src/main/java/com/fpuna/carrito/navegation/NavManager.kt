@@ -2,6 +2,7 @@ package com.fpuna.carrito.navegation
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -12,9 +13,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.fpuna.carrito.viewmodel.AppViewModelFactory
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
+import com.fpuna.carrito.viewmodel.ProductoViewModel
 import com.fpuna.carrito.views.categoria.AgregarCategoriaView
 import com.fpuna.carrito.views.categoria.EditarCategoriaView
 import com.fpuna.carrito.views.categoria.InicioCategoriaView
+import com.fpuna.carrito.views.producto.AgregarProductoView
+import com.fpuna.carrito.views.producto.EditarProductoView
+import com.fpuna.carrito.views.producto.ListarProductosView
 
 @Composable
 fun NavManager(
@@ -24,7 +29,7 @@ fun NavManager(
 ) {
     // Instancia de ViewModels que se necesita
     val categoriaViewModel: CategoriaViewModel = viewModel(factory = viewModelFactory)
-    //val productoViewModel: ProductoViewModel = viewModel(factory = viewModelFactory)
+    val productoViewModel: ProductoViewModel = viewModel(factory = viewModelFactory)
     NavHost(navController = navController, startDestination = "inicio", modifier = modifier) {
         composable(route = "inicio") {
             // Fondo blanco temporal
@@ -39,11 +44,11 @@ fun NavManager(
         composable(route = "inicioCategoria") {
             InicioCategoriaView(navController, categoriaViewModel)
         }
-        composable(route = "agregar") {
+        composable(route = "agregarCategoria") {
             AgregarCategoriaView(navController, categoriaViewModel)
         }
         composable(
-            route = "editar/{id}/{name}",
+            route = "editarCategoria/{id}/{name}",
             arguments = listOf(
                 navArgument(name = "id") { type = NavType.IntType },
                 navArgument(name = "name") {
@@ -59,8 +64,8 @@ fun NavManager(
             )
         }
 
-        /*// Navegación para productos
-        composable(route = "listar") {
+        // Navegación para productos
+        composable(route = "inicioProducto") {
             val categorias = categoriaViewModel.state.listaCategorias
             ListarProductosView(navController, productoViewModel, categorias)
         }
@@ -85,7 +90,6 @@ fun NavManager(
 
             if (producto != null) {
                 EditarProductoView(
-                    paddingValues = PaddingValues(),
                     navController = navController,
                     productoViewModel = productoViewModel,
                     categoriaViewModel = categoriaViewModel,
@@ -94,6 +98,6 @@ fun NavManager(
             } else {
                 Text("Producto no encontrado")
             }
-        }*/
+        }
     }
 }

@@ -99,7 +99,17 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                         titulo = "Categorias"
                     },
                 )
-                // ...other drawer items
+                HorizontalDivider()
+                NavigationDrawerItem(
+                    label = { Text(text = "Productos") },
+                    selected = false,
+                    onClick = {
+                        coroutineScope.launch { drawerState.close() }
+                        navController.navigate("inicioProducto")
+                        titulo = "Productos"
+                    },
+                )
+
             }
         }
     ) {
