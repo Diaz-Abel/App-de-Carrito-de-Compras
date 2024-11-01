@@ -13,6 +13,8 @@ import com.fpuna.carrito.models.Cliente
 import com.fpuna.carrito.models.DetalleVenta
 import com.fpuna.carrito.models.Producto
 import com.fpuna.carrito.models.Venta
+import com.fpuna.carrito.models.DetalleVentaProducto
+
 
 @Database(
     entities = [Categoria::class, Producto::class, Venta::class, Cliente::class, DetalleVenta::class, CarritoItem::class],

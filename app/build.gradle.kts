@@ -51,24 +51,28 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.room.runtime)
+    ksp(libs.room.compiler) // Usa solo KSP en lugar de annotationProcessor
+
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.benchmark.macro)
-    annotationProcessor(libs.room.compiler)
-    // To use Kotlin Symbol Processing (KSP)
-    ksp(libs.room.compiler)
-    // optional - Kotlin Extensions and Coroutines support for Room
-    implementation(libs.androidx.room.ktx)
 
+    // Room y soporte de coroutines
+    implementation(libs.androidx.room.ktx) // Esto debería estar en libs si tienes una biblioteca de versiones
+
+    // Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+
+    // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -76,4 +80,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+    // Extensiones de lifecycle para Compose y LiveData
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.4.1")
 }

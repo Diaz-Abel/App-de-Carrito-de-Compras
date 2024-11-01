@@ -7,6 +7,12 @@ import com.fpuna.carrito.daos.VentaDao
 import com.fpuna.carrito.models.Cliente
 import com.fpuna.carrito.models.Venta
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import androidx.lifecycle.liveData
+import com.fpuna.carrito.models.DetalleVentaProducto
+
+
 
 class VentaViewModel(private val ventaDao: VentaDao, private val clienteDao: ClienteDao) :
     ViewModel() {
@@ -19,5 +25,36 @@ class VentaViewModel(private val ventaDao: VentaDao, private val clienteDao: Cli
             }
             ventaDao.insertVenta(venta)
         }
+    }
+    // Estado para la lista de ventas
+    val ventasFlow = MutableStateFlow<List<Venta>>(emptyList())
+
+    init {
+        cargarVentas()
+    }
+
+    // Cargar todas las ventas
+        fun cargarVentas() {
+        viewModelScope.launch {
+            ventasFlow.value = ventaDao.getAllVentas()
+        }
+    }
+
+    // Filtrar ventas por fecha
+    fun filtrarVentasPorFecha(fecha: String) = viewModelScope.launch {
+        ventasFlow.value = ventaDao.getVentasByFecha(fecha)
+    }
+
+    // Filtrar ventas por cliente (nombre, apellido, o cédula)
+    fun filtrarVentasPorCliente(cedula: String) = viewModelScope.launch {
+        val cliente = clienteDao.getClienteByCedula(cedula)
+        if (cliente != null) {
+            ventasFlow.value = ventaDao.getVentasByCliente(cliente.idCliente)
+        } else {
+            ventasFlow.value = emptyList() // Cliente no encontrado
+        }
+    }
+    fun obtenerDetalleVenta(idVenta: Long): Flow<List<DetalleVentaProducto>> {
+        return ventaDao.getDetallesDeVenta(idVenta)
     }
 }

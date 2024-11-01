@@ -10,3 +10,4 @@ data class Categoria(
     val id: Int = 0, // valor por defecto
     val name: String
 )
+

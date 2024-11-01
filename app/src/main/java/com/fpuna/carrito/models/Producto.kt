@@ -3,6 +3,8 @@ package com.fpuna.carrito.models
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import androidx.room.Index
+
 
 @Entity(
     tableName = "productos",
@@ -11,7 +13,8 @@ import androidx.room.PrimaryKey
         parentColumns = ["id"], // Coincide con el campo en Categoria
         childColumns = ["idCategoria"],
         onDelete = ForeignKey.NO_ACTION
-    )]
+    )],
+    indices = [Index(value = ["idCategoria"])]
 )
 data class Producto(
     @PrimaryKey(autoGenerate = true) val idProducto: Int = 0,
@@ -19,4 +22,5 @@ data class Producto(
     val idCategoria: Int, // Referencia a la categoría
     val precioVenta: Double
 )
+
 

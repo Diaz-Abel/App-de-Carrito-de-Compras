@@ -96,6 +96,8 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     }
                 )
                 HorizontalDivider()
+
+                // Opción de menú para ir a "Categorias"
                 NavigationDrawerItem(
                     label = { Text(text = "Categorias") },
                     selected = false,
@@ -106,6 +108,8 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     },
                 )
                 HorizontalDivider()
+
+                // Opción de menú para ir a "Productos"
                 NavigationDrawerItem(
                     label = { Text(text = "Productos") },
                     selected = false,
@@ -115,7 +119,18 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                         titulo = "Productos"
                     },
                 )
+                HorizontalDivider()
 
+                // Nueva opción de menú para "Consultar Ventas"
+                NavigationDrawerItem(
+                    label = { Text(text = "Consultar Ventas") },
+                    selected = false,
+                    onClick = {
+                        coroutineScope.launch { drawerState.close() }
+                        navController.navigate("consultaVentas")
+                        titulo = "Consultar Ventas"
+                    },
+                )
             }
         }
     ) {
@@ -135,7 +150,6 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     navigationIcon = {
                         IconButton(
                             onClick = { coroutineScope.launch { drawerState.open() } }
-
                         ) {
                             Image(
                                 imageVector = Icons.Default.Menu,
@@ -149,7 +163,7 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                             Image(
                                 imageVector = Icons.Filled.ShoppingCart,
                                 contentDescription = "Carrito de compras",
-                                colorFilter = ColorFilter.tint(Color.White) // Asegúrate de que el ícono sea blanco
+                                colorFilter = ColorFilter.tint(Color.White)
                             )
                         }
                     }
@@ -159,4 +173,5 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
         }
     }
 }
+
 

@@ -23,6 +23,9 @@ import com.fpuna.carrito.views.producto.ListarProductosView
 import com.fpuna.carrito.views.ventas.CarritoView
 import com.fpuna.carrito.views.ventas.ListarVentaProductos
 import com.fpuna.carrito.views.ventas.VentaView
+import com.fpuna.carrito.views.ventas.ConsultaVentasView
+import com.fpuna.carrito.views.ventas.DetalleVentaView
+
 
 @Composable
 fun NavManager(
@@ -50,6 +53,23 @@ fun NavManager(
             CarritoView(navController, carritoViewModel)
         }
         composable("venta") { VentaView(navController, ventaViewModel) }
+
+        // Nueva vista para consultar ventas
+        composable("consultaVentas") {
+            ConsultaVentasView(
+                ventaViewModel = ventaViewModel,
+                navController = navController
+            )
+        }
+
+        // Nueva vista para detalle de una venta específica
+        composable(
+            "detalleVenta/{idVenta}",
+            arguments = listOf(navArgument("idVenta") { type = NavType.LongType })
+        ) {
+            val idVenta = it.arguments?.getLong("idVenta") ?: 0L
+            DetalleVentaView(ventaViewModel, idVenta)
+        }
 
         // CATEGORIAS
         composable(route = "inicioCategoria") {

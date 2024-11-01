@@ -64,7 +64,7 @@ fun VentaView(navController: NavController, ventaViewModel: VentaViewModel) {
                 label = { Text("Apellido") }
             )
             Button(onClick = {
-                val venta = Venta(fecha = "2024-10-30", idCliente = clienteCedula, total = total)
+                val venta = Venta(fecha = "2024-10-30", idCliente = clienteCedula.toLong(), total = total)
                 val cliente = Cliente(
                     cedula = clienteCedula,
                     nombre = clienteNombre,

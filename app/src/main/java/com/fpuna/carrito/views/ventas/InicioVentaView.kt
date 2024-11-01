@@ -25,6 +25,16 @@ import androidx.navigation.NavController
 import com.fpuna.carrito.models.Producto
 import com.fpuna.carrito.viewmodel.CarritoViewModel
 import com.fpuna.carrito.viewmodel.ProductoViewModel
+import com.fpuna.carrito.models.Venta // Asume que la clase Venta está en este paquete
+import com.fpuna.carrito.viewmodel.VentaViewModel // Importa tu ViewModel
+import androidx.navigation.NavHostController
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import com.fpuna.carrito.models.DetalleVentaProducto
+
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,3 +129,95 @@ fun ModalCantidadProducto(
         }
     )
 }
+@Composable
+fun ConsultaVentasView(
+    ventaViewModel: VentaViewModel,
+    navController: NavHostController
+) {
+    val ventas by ventaViewModel.ventasFlow.collectAsState()
+    var filtroFecha by remember { mutableStateOf("") }
+    var filtroCedula by remember { mutableStateOf("") }
+
+    Column {
+        // Filtro por fecha
+        OutlinedTextField(
+            value = filtroFecha,
+            onValueChange = {
+                filtroFecha = it
+                if (filtroFecha.isNotEmpty()) {
+                    ventaViewModel.filtrarVentasPorFecha(filtroFecha)
+                } else {
+                    ventaViewModel.cargarVentas() // Cargar todas las ventas si se elimina el filtro
+                }
+            },
+            label = { Text("Filtrar por Fecha") }
+        )
+
+        // Filtro por cliente
+        OutlinedTextField(
+            value = filtroCedula,
+            onValueChange = {
+                filtroCedula = it
+                if (filtroCedula.isNotEmpty()) {
+                    ventaViewModel.filtrarVentasPorCliente(filtroCedula)
+                } else {
+                    ventaViewModel.cargarVentas() // Cargar todas las ventas si se elimina el filtro
+                }
+            },
+            label = { Text("Filtrar por Cédula de Cliente") }
+        )
+
+        // Listado de ventas
+        LazyColumn {
+            items(ventas) { venta ->
+                VentaItem(venta, onClick = {
+                    navController.navigate("detalleVenta/${venta.idVenta}")
+                })
+            }
+        }
+    }
+}
+
+@Composable
+fun VentaItem(venta: Venta, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .padding(8.dp)
+    ) {
+        Text("Fecha: ${venta.fecha}")
+        Spacer(modifier = Modifier.width(16.dp))
+        Text("Total: ${venta.total}")
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // Convierte idCliente a String en caso de ser necesario
+        Text("Cliente ID: ${venta.idCliente.toString()}")
+    }
+}
+
+@Composable
+fun DetalleVentaView(
+    ventaViewModel: VentaViewModel,
+    idVenta: Long
+) {
+    val detalles by ventaViewModel.obtenerDetalleVenta(idVenta).collectAsState(initial = emptyList())
+
+    LazyColumn {
+        items(detalles) { detalle ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Text("Producto: ${detalle.nombre}")
+                Spacer(modifier = Modifier.width(16.dp))
+                Text("Cantidad: ${detalle.cantidad}")
+                Spacer(modifier = Modifier.width(16.dp))
+                Text("Precio: ${detalle.precio}")
+            }
+        }
+    }
+}
+
+
+
