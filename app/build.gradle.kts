@@ -76,6 +76,9 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation("androidx.compose.material3:material3:1.0.0")
 
+    // Dependencia para iconos extendidos de Material
+    implementation("androidx.compose.material:material-icons-extended:1.5.1") // Versión basada en el BOM
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
