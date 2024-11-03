@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.fpuna.carrito.models.Producto
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProductoDao {
@@ -20,7 +21,7 @@ interface ProductoDao {
     suspend fun deleteById(id: Int)
 
     @Query("SELECT * FROM productos ORDER BY nombre ASC")
-    fun getAllProductos(): LiveData<List<Producto>>
+    fun getAllProductos():  Flow<List<Producto>>
 
     @Query("SELECT * FROM productos WHERE nombre LIKE :nombre ORDER BY nombre ASC")
     fun getProductosByName(nombre: String): LiveData<List<Producto>>

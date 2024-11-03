@@ -36,11 +36,39 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
-
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewModel) {
     var searchQuery by remember { mutableStateOf("") }
+    var showMessage by remember { mutableStateOf(false) }
+    val message = viewModel.uiState
+
+    // Mostrar diálogo si hay un mensaje en uiState
+    LaunchedEffect(message) {
+        if (message != null) {
+            showMessage = true
+        }
+    }
+
+    if (showMessage && message != null) {
+        AlertDialog(
+            onDismissRequest = {
+                showMessage = false
+                viewModel.uiState = null
+            },
+            title = { Text("Información") },
+            text = { Text(message) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showMessage = false
+                    viewModel.uiState = null
+                }) {
+                    Text("Aceptar")
+                }
+            }
+        )
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -60,7 +88,6 @@ fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewMo
                 .padding(start = 16.dp, end = 16.dp)
                 .fillMaxSize()
         ) {
-
 
             TextField(
                 value = searchQuery,
@@ -88,7 +115,6 @@ fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewMo
 
     }
 }
-
 @Composable
 fun CategoriaItem(
     categoria: Categoria,
@@ -149,7 +175,7 @@ fun CategoriaItem(
                 TextButton(onClick = { showConfirmDialog = false }) { Text("Cancelar") }
             },
             title = { Text("Confirmar Eliminación") },
-            text = { Text("¿Seguro que quieres eliminar esta categoría?") }
+            text = { Text("¿Seguro que desea eliminar esta categoría?") }
         )
     }
 }

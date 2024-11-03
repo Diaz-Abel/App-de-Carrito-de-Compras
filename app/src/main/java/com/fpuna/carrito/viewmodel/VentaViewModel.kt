@@ -26,6 +26,14 @@ class VentaViewModel(
         return ventaDao.getDetallesDeVenta(idVenta)
     }
 
+    // Función para verificar si un cliente existe por su cédula
+    fun verificarCliente(cedula: String, onResult: (Cliente?) -> Unit) {
+        viewModelScope.launch {
+            val cliente = clienteDao.getClienteByCedula(cedula)
+            onResult(cliente)
+        }
+    }
+
     // Función para finalizar la orden
     fun finalizarOrden(
         cliente: Cliente,

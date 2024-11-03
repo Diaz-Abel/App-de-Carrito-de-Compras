@@ -26,13 +26,13 @@ fun CarritoView(
     carritoViewModel: CarritoViewModel = viewModel(),
     ventaViewModel: VentaViewModel = viewModel()
 ) {
-
     // Observa los cambios en el flujo de itemsCarrito con una lista vacía inicial
     val itemsCarrito by carritoViewModel.itemsCarrito.collectAsState()
     var total by remember { mutableStateOf(0.0) }
+    var showEmptyCartDialog by remember { mutableStateOf(false) } // Mensaje si el carrito ya está vacío
+    var showConfirmClearCartDialog by remember { mutableStateOf(false) } // Confirmación para vaciar el carrito
 
-
-    // Calcular el total del carrito en tiempo real, llamando a la función de suspensión en una corrutina
+    // Calcular el total del carrito en tiempo real
     LaunchedEffect(itemsCarrito) {
         val precios = itemsCarrito.map { item ->
             async {
@@ -48,7 +48,6 @@ fun CarritoView(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(itemsCarrito) { item ->
                 var producto by remember { mutableStateOf<Producto?>(null) }
@@ -74,6 +73,7 @@ fun CarritoView(
                 }
             }
         }
+
         // Mostrar el total general del carrito
         Text(
             text = "Total: ${"%.2f".format(total)} Gs.", // Formatear a dos decimales
@@ -81,8 +81,15 @@ fun CarritoView(
             modifier = Modifier.padding(vertical = 8.dp)
         )
 
+        // Botón para vaciar el carrito
         Button(
-            onClick = { carritoViewModel.vaciarCarrito() },
+            onClick = {
+                if (itemsCarrito.isEmpty()) {
+                    showEmptyCartDialog = true // Muestra mensaje si el carrito ya está vacío
+                } else {
+                    showConfirmClearCartDialog = true // Mostrar diálogo de confirmación
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -93,8 +100,12 @@ fun CarritoView(
         // Botón para navegar a FinalizarOrdenView y pasar el total y items
         Button(
             onClick = {
-                navController.navigate("finalizarOrden?total=${total}") {
-                    popUpTo("carrito") { inclusive = true }
+                if (itemsCarrito.isEmpty()) {
+                    showEmptyCartDialog = true // Muestra el mensaje de carrito vacío
+                } else {
+                    navController.navigate("finalizarOrden?total=${total}") {
+                        popUpTo("carrito") { inclusive = true }
+                    }
                 }
             },
             modifier = Modifier
@@ -103,6 +114,42 @@ fun CarritoView(
         ) {
             Text("Finalizar Orden")
         }
+    }
+
+    // Diálogo si el carrito ya está vacío
+    if (showEmptyCartDialog) {
+        AlertDialog(
+            onDismissRequest = { showEmptyCartDialog = false },
+            title = { Text("Carrito vacío") },
+            text = { Text("Tu carrito está vacío.") },
+            confirmButton = {
+                TextButton(onClick = { showEmptyCartDialog = false }) {
+                    Text("Aceptar")
+                }
+            }
+        )
+    }
+
+    // Diálogo de confirmación para vaciar el carrito
+    if (showConfirmClearCartDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmClearCartDialog = false },
+            title = { Text("Confirmar") },
+            text = { Text("¿Estás seguro de que deseas vaciar el carrito?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    carritoViewModel.vaciarCarrito()
+                    showConfirmClearCartDialog = false
+                }) {
+                    Text("Confirmar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmClearCartDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 

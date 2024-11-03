@@ -36,11 +36,39 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.fpuna.carrito.models.Cliente
 import com.fpuna.carrito.viewmodel.ClienteViewModel
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun InicioClienteView(navController: NavController, viewModel: ClienteViewModel) {
     var searchQuery by remember { mutableStateOf("") }
-    val uiState = viewModel.uiState
+    var showMessage by remember { mutableStateOf(false) }
+    val message = viewModel.uiState
+
+    // Mostrar diálogo si hay un mensaje en uiState
+    LaunchedEffect(message) {
+        if (message != null) {
+            showMessage = true
+        }
+    }
+
+    if (showMessage && message != null) {
+        AlertDialog(
+            onDismissRequest = {
+                showMessage = false
+                viewModel.uiState = null
+            },
+            title = { Text("Información") },
+            text = { Text(message) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showMessage = false
+                    viewModel.uiState = null
+                }) {
+                    Text("Aceptar")
+                }
+            }
+        )
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -60,14 +88,6 @@ fun InicioClienteView(navController: NavController, viewModel: ClienteViewModel)
                 .padding(start = 16.dp, end = 16.dp)
                 .fillMaxSize()
         ) {
-            if (uiState != null) {
-                Text(
-                    text = uiState,
-                    color = Color.Red,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-            }
-
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -101,6 +121,7 @@ fun InicioClienteView(navController: NavController, viewModel: ClienteViewModel)
         }
     }
 }
+
 
 @Composable
 fun ClienteItem(
@@ -166,13 +187,13 @@ fun ClienteItem(
                 TextButton(onClick = {
                     viewModel.borrarCliente(cliente)
                     showConfirmDialog = false
-                }) { Text("Eliminar") }
+                }) { Text("Dar de Baja Cliente") }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmDialog = false }) { Text("Cancelar") }
             },
             title = { Text("Confirmar Eliminación") },
-            text = { Text("¿Seguro que quieres eliminar este cliente?") } // Cambié el texto a "cliente" para mayor claridad
+            text = { Text("¿Seguro que desea dar de baja este cliente?") } // Cambié el texto a "cliente" para mayor claridad
         )
     }
 }
