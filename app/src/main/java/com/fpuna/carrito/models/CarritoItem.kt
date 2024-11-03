@@ -2,15 +2,17 @@ package com.fpuna.carrito.models
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "carrito",
+    indices = [Index(value = ["idProducto"])], // Añadimos un índice para mejorar el rendimiento en idProducto
     foreignKeys = [ForeignKey(
         entity = Producto::class,
         parentColumns = ["idProducto"],
         childColumns = ["idProducto"],
-        onDelete = ForeignKey.NO_ACTION // no Elimina el CarritoItem si el Producto es eliminado
+        onDelete = ForeignKey.NO_ACTION // No elimina el CarritoItem si el Producto es eliminado
     )]
 )
 data class CarritoItem(

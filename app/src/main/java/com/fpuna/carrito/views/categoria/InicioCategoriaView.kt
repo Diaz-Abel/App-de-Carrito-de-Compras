@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -21,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,6 +40,8 @@ import com.fpuna.carrito.viewmodel.CategoriaViewModel
 @Composable
 fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewModel) {
     var searchQuery by remember { mutableStateOf("") }
+    val uiState = viewModel.uiState
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -56,7 +60,14 @@ fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewMo
                 .padding(start = 16.dp, end = 16.dp)
                 .fillMaxSize()
         ) {
-            // Campo de búsqueda
+            if (uiState != null) {
+                Text(
+                    text = uiState,
+                    color = Color.Red,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -67,7 +78,6 @@ fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewMo
             Spacer(modifier = Modifier.height(8.dp))
 
             LazyColumn {
-                // Filtrar la lista de categorías
                 val filteredCategorias = viewModel.state.listaCategorias.filter {
                     it.name.contains(searchQuery, ignoreCase = true)
                 }
@@ -84,13 +94,13 @@ fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewMo
     }
 }
 
-
 @Composable
 fun CategoriaItem(
     categoria: Categoria,
     navController: NavController,
     viewModel: CategoriaViewModel
 ) {
+    var showConfirmDialog by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,5 +140,21 @@ fun CategoriaItem(
                 }
             }
         }
+    }
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.borrarCategoria(categoria)
+                    showConfirmDialog = false
+                }) { Text("Eliminar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) { Text("Cancelar") }
+            },
+            title = { Text("Confirmar Eliminación") },
+            text = { Text("¿Seguro que quieres eliminar esta categoría?") }
+        )
     }
 }

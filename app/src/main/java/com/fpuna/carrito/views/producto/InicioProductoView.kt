@@ -36,6 +36,8 @@ import androidx.navigation.NavController
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.models.Producto
 import com.fpuna.carrito.viewmodel.ProductoViewModel
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

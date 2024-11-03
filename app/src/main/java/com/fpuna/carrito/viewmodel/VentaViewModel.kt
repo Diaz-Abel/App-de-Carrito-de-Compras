@@ -5,13 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.fpuna.carrito.daos.ClienteDao
 import com.fpuna.carrito.daos.VentaDao
 import com.fpuna.carrito.models.Cliente
+import com.fpuna.carrito.models.DetalleVentaProducto
 import com.fpuna.carrito.models.Venta
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import androidx.lifecycle.liveData
-import com.fpuna.carrito.models.DetalleVentaProducto
-
+import kotlinx.coroutines.launch
 
 
 class VentaViewModel(private val ventaDao: VentaDao, private val clienteDao: ClienteDao) :
@@ -26,6 +24,7 @@ class VentaViewModel(private val ventaDao: VentaDao, private val clienteDao: Cli
             ventaDao.insertVenta(venta)
         }
     }
+
     // Estado para la lista de ventas
     val ventasFlow = MutableStateFlow<List<Venta>>(emptyList())
 
@@ -34,7 +33,7 @@ class VentaViewModel(private val ventaDao: VentaDao, private val clienteDao: Cli
     }
 
     // Cargar todas las ventas
-        fun cargarVentas() {
+    fun cargarVentas() {
         viewModelScope.launch {
             ventasFlow.value = ventaDao.getAllVentas()
         }
@@ -54,6 +53,7 @@ class VentaViewModel(private val ventaDao: VentaDao, private val clienteDao: Cli
             ventasFlow.value = emptyList() // Cliente no encontrado
         }
     }
+
     fun obtenerDetalleVenta(idVenta: Long): Flow<List<DetalleVentaProducto>> {
         return ventaDao.getDetallesDeVenta(idVenta)
     }

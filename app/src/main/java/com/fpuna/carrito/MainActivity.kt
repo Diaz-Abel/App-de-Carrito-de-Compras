@@ -40,7 +40,8 @@ import com.fpuna.carrito.navegation.NavManager
 import com.fpuna.carrito.ui.theme.CarritoTheme
 import com.fpuna.carrito.viewmodel.AppViewModelFactory
 import kotlinx.coroutines.launch
-
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,6 +119,17 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                         navController.navigate("inicioProducto")
                         titulo = "Productos"
                     },
+                )
+                HorizontalDivider()
+                // Nueva opción de menú para Clientes
+                NavigationDrawerItem(
+                    label = { Text(text = "Clientes") },
+                    selected = false,
+                    onClick = {
+                        coroutineScope.launch { drawerState.close() }
+                        navController.navigate("inicioCliente")
+                        titulo = "Clientes"
+                    }
                 )
                 HorizontalDivider()
 

@@ -12,19 +12,21 @@ import androidx.navigation.navArgument
 import com.fpuna.carrito.viewmodel.AppViewModelFactory
 import com.fpuna.carrito.viewmodel.CarritoViewModel
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
+import com.fpuna.carrito.viewmodel.ClienteViewModel
 import com.fpuna.carrito.viewmodel.ProductoViewModel
 import com.fpuna.carrito.viewmodel.VentaViewModel
 import com.fpuna.carrito.views.categoria.AgregarCategoriaView
 import com.fpuna.carrito.views.categoria.EditarCategoriaView
 import com.fpuna.carrito.views.categoria.InicioCategoriaView
+import com.fpuna.carrito.views.cliente.InicioClienteView
 import com.fpuna.carrito.views.producto.AgregarProductoView
 import com.fpuna.carrito.views.producto.EditarProductoView
 import com.fpuna.carrito.views.producto.ListarProductosView
 import com.fpuna.carrito.views.ventas.CarritoView
-import com.fpuna.carrito.views.ventas.ListarVentaProductos
-import com.fpuna.carrito.views.ventas.VentaView
 import com.fpuna.carrito.views.ventas.ConsultaVentasView
 import com.fpuna.carrito.views.ventas.DetalleVentaView
+import com.fpuna.carrito.views.ventas.ListarVentaProductos
+import com.fpuna.carrito.views.ventas.VentaView
 
 
 @Composable
@@ -38,6 +40,7 @@ fun NavManager(
     val productoViewModel: ProductoViewModel = viewModel(factory = viewModelFactory)
     val ventaViewModel: VentaViewModel = viewModel(factory = viewModelFactory)
     val carritoViewModel: CarritoViewModel = viewModel(factory = viewModelFactory)
+    val clienteViewModel: ClienteViewModel = viewModel(factory = viewModelFactory)
 
     NavHost(navController = navController, startDestination = "inicioVenta", modifier = modifier) {
 
@@ -130,5 +133,13 @@ fun NavManager(
                 Text("Producto no encontrado")
             }
         }
+
+        // CLIENTE
+
+        composable("inicioCliente") {
+            InicioClienteView(navController, clienteViewModel)
+        }
+
+
     }
 }
