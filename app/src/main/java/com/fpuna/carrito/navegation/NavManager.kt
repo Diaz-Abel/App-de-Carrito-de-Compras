@@ -28,8 +28,8 @@ import com.fpuna.carrito.views.ventas.CarritoView
 import com.fpuna.carrito.views.ventas.ConsultaVentasView
 import com.fpuna.carrito.views.ventas.DetalleVentaView
 import com.fpuna.carrito.views.ventas.ListarVentaProductos
-import com.fpuna.carrito.views.ventas.VentaView
-
+import com.fpuna.carrito.views.ventas.FinalizarOrdenView
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun NavManager(
@@ -59,7 +59,22 @@ fun NavManager(
         composable("carrito") {
             CarritoView(navController, carritoViewModel, ventaViewModel)
         }
-        composable("venta") { VentaView(navController, ventaViewModel) }
+
+        // Nueva ruta para FinalizarOrdenView con el parámetro total
+        composable(
+            route = "finalizarOrden?total={total}",
+            arguments = listOf(navArgument("total") { type = NavType.FloatType })
+        ) { backStackEntry ->
+            val total = backStackEntry.arguments?.getFloat("total")?.toDouble() ?: 0.0
+            val itemsCarrito = carritoViewModel.itemsCarrito.collectAsState(initial = emptyList()).value
+
+            FinalizarOrdenView(
+                navController = navController,
+                ventaViewModel = ventaViewModel,
+                total = total,
+                itemsCarrito = itemsCarrito
+            )
+        }
 
         // Nueva vista para consultar ventas
         composable("consultaVentas") {
@@ -107,9 +122,8 @@ fun NavManager(
             val categorias = categoriaViewModel.state.listaCategorias
             ListarProductosView(navController, productoViewModel, categorias)
         }
-        composable(route = "agregarProducto") { backStackEntry ->
-            val categorias =
-                categoriaViewModel.state.listaCategorias // Obtener las categorías del ViewModel
+        composable(route = "agregarProducto") {
+            val categorias = categoriaViewModel.state.listaCategorias
             AgregarProductoView(navController, productoViewModel, categorias)
         }
         composable(
@@ -139,7 +153,6 @@ fun NavManager(
         }
 
         // CLIENTE
-
         composable("inicioCliente") {
             InicioClienteView(navController, clienteViewModel)
         }
@@ -158,7 +171,5 @@ fun NavManager(
         composable(route = "agregarCliente") {
             AgregarClienteView(navController, clienteViewModel)
         }
-
-
     }
 }

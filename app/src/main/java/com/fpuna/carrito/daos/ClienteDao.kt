@@ -19,7 +19,7 @@ interface ClienteDao {
     suspend fun getClienteByCedula(cedula: String): Cliente?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(cliente: Cliente)
+    suspend fun insert(cliente: Cliente): Long
 
     @Update
     suspend fun update(cliente: Cliente)

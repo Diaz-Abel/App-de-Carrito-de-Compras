@@ -5,13 +5,18 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.fpuna.carrito.models.Venta
+import com.fpuna.carrito.models.DetalleVenta
 import com.fpuna.carrito.models.DetalleVentaProducto
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface VentaDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertVenta(venta: Venta)
+    suspend fun insertVenta(venta: Venta): Long
+
+    // Nueva función para insertar detalles de venta
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertDetalleVenta(detalleVenta: DetalleVenta)
 
     @Query("SELECT * FROM ventas")
     suspend fun getAllVentas(): List<Venta>

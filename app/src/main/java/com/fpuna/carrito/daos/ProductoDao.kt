@@ -27,4 +27,8 @@ interface ProductoDao {
 
     @Query("SELECT * FROM productos WHERE idCategoria = :idCategoria ORDER BY nombre ASC")
     fun getProductosByCategoria(idCategoria: Int): LiveData<List<Producto>>
+
+    // Nueva función para obtener un producto por idProducto
+    @Query("SELECT * FROM productos WHERE idProducto = :idProducto LIMIT 1")
+    suspend fun obtenerProductoPorId(idProducto: Int): Producto?
 }
