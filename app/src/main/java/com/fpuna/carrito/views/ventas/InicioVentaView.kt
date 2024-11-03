@@ -24,8 +24,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.fpuna.carrito.models.Categoria
+import com.fpuna.carrito.models.Cliente
 import com.fpuna.carrito.models.Producto
 import com.fpuna.carrito.models.Venta
 import com.fpuna.carrito.viewmodel.CarritoViewModel
@@ -228,6 +231,19 @@ fun ConsultaVentasView(
     var filtroFecha by remember { mutableStateOf("") }
     var filtroCedula by remember { mutableStateOf("") }
     val context = LocalContext.current
+    val clientes =
+        remember { mutableStateMapOf<Long, Cliente>() } // Usamos un Map para almacenar clientes
+
+    // Cargar clientes cuando las ventas cambian
+    LaunchedEffect(ventas) {
+        for (venta in ventas) {
+            if (!clientes.contains(venta.idCliente)) {
+                // Obtener cliente solo si no está en el mapa
+                val cliente = ventaViewModel.obtenerClientePorId(venta.idCliente)
+                clientes[venta.idCliente] = cliente
+            }
+        }
+    }
 
     Column(
         modifier = Modifier.padding(16.dp) // Aplicar espaciado de 16dp en todos lados
@@ -238,6 +254,7 @@ fun ConsultaVentasView(
             style = MaterialTheme.typography.bodySmall,  // Usar un estilo de encabezado
         )
         Spacer(modifier = Modifier.height(8.dp)) // Espaciado vertical entre el encabezado y el siguiente elemento
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -264,6 +281,7 @@ fun ConsultaVentasView(
             )
         }
         Spacer(modifier = Modifier.height(16.dp)) // Espaciado vertical después del filtro de fecha
+
         TextField(
             value = filtroCedula,
             onValueChange = {
@@ -274,18 +292,27 @@ fun ConsultaVentasView(
                     ventaViewModel.cargarVentas() // Cargar todas las ventas si se elimina el filtro
                 }
             },
-            label = { Text("Buscar por nombre o cedula") },
+            label = { Text("Buscar por nombre o cédula") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp)) // Espaciado vertical después del TextField
 
-        // Listado de ventas
+        // Listado de ventas filtradas por clientes
         LazyColumn {
-            items(ventas) { venta ->
-                VentaItem(venta, onClick = {
-                    navController.navigate("detalleVenta/${venta.idVenta}")
-                })
-                Spacer(modifier = Modifier.height(8.dp)) // Espaciado vertical entre los elementos de la lista
+            items(ventas.filter { venta ->
+                // Filtrar las ventas según si el cliente está en la lista de clientes filtrados
+                clientes.values.any { cliente ->
+                    (cliente.nombre.contains(filtroCedula, ignoreCase = true) ||
+                            cliente.cedula.contains(filtroCedula, ignoreCase = true)) &&
+                            cliente.idCliente == venta.idCliente
+                }
+            }) { venta ->
+                val cliente = clientes[venta.idCliente]
+                if (cliente != null) {
+                    VentaItem(venta, cliente) {
+                        navController.navigate("detalleVenta/${venta.idVenta}")
+                    }
+                }
             }
         }
     }
@@ -314,21 +341,37 @@ fun showDatePicker(context: Context, onDateSelected: (String) -> Unit) {
 
 
 @Composable
-fun VentaItem(venta: Venta, onClick: () -> Unit) {
-    Row(
+fun VentaItem(venta: Venta, cliente: Cliente, onClick: () -> Unit) {
+    Card(
         modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
             .clickable(onClick = onClick)
-            .padding(8.dp)
     ) {
-        Text("Fecha: ${venta.fecha}")
-        Spacer(modifier = Modifier.width(16.dp))
-        Text("Total: ${venta.total}")
-        Spacer(modifier = Modifier.width(16.dp))
-
-        // Convierte idCliente a String en caso de ser necesario
-        Text("Cliente ID: ${venta.idCliente.toString()}")
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                "Fecha: ${venta.fecha}",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                "Total: ${venta.total}",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                "Nombre: ${cliente.nombre} ${cliente.apellido}",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                "Cédula: ${cliente.cedula}",
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
     }
 }
+
 
 @Composable
 fun DetalleVentaView(

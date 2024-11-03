@@ -18,6 +18,9 @@ interface ClienteDao {
     @Query("SELECT * FROM clientes WHERE cedula = :cedula LIMIT 1")
     suspend fun getClienteByCedula(cedula: String): Cliente?
 
+    @Query("SELECT * FROM clientes WHERE idCliente = :id")
+    suspend fun getClienteById(id: Long): Cliente
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(cliente: Cliente): Long
 

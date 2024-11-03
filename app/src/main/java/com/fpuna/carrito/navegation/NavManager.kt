@@ -27,9 +27,8 @@ import com.fpuna.carrito.views.producto.ListarProductosView
 import com.fpuna.carrito.views.ventas.CarritoView
 import com.fpuna.carrito.views.ventas.ConsultaVentasView
 import com.fpuna.carrito.views.ventas.DetalleVentaView
-import com.fpuna.carrito.views.ventas.ListarVentaProductos
 import com.fpuna.carrito.views.ventas.FinalizarOrdenView
-import androidx.compose.runtime.collectAsState
+import com.fpuna.carrito.views.ventas.ListarVentaProductos
 
 @Composable
 fun NavManager(
@@ -66,13 +65,12 @@ fun NavManager(
             arguments = listOf(navArgument("total") { type = NavType.FloatType })
         ) { backStackEntry ->
             val total = backStackEntry.arguments?.getFloat("total")?.toDouble() ?: 0.0
-            val itemsCarrito = carritoViewModel.itemsCarrito.collectAsState(initial = emptyList()).value
 
             FinalizarOrdenView(
                 navController = navController,
                 ventaViewModel = ventaViewModel,
                 total = total,
-                itemsCarrito = itemsCarrito
+                carritoViewModel
             )
         }
 
