@@ -37,6 +37,7 @@ import androidx.navigation.NavController
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.models.Producto
 import com.fpuna.carrito.viewmodel.ProductoViewModel
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun ListarProductosView(
@@ -45,12 +46,30 @@ fun ListarProductosView(
     listaCategorias: List<Categoria>
 ) {
     val productos by productoViewModel.state.productosFlow.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
 
-    var searchQuery by remember { mutableStateOf("") } // Estado para el texto de búsqueda
+    // Observar el estado de mensaje UI (uiState)
+    val uiState = productoViewModel.uiState
+    var showDialog by remember { mutableStateOf(false) }
 
-    // Función para manejar la eliminación de un producto
-    fun eliminarProducto(producto: Producto) {
-        productoViewModel.eliminarProducto(producto.idProducto) // Llama al método para eliminar en el ViewModel
+    // Mostrar diálogo si hay un mensaje en uiState
+    LaunchedEffect(uiState) {
+        if (uiState != null) {
+            showDialog = true
+        }
+    }
+
+    if (showDialog && uiState != null) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false; productoViewModel.uiState = null },
+            title = { Text("Información") },
+            text = { Text(uiState) },
+            confirmButton = {
+                TextButton(onClick = { showDialog = false; productoViewModel.uiState = null }) {
+                    Text("Aceptar")
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -69,7 +88,6 @@ fun ListarProductosView(
                 .padding(start = 16.dp, end = 16.dp)
                 .fillMaxSize()
         ) {
-            // Campo de búsqueda
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -83,7 +101,6 @@ fun ListarProductosView(
                 Text("No hay productos disponibles.")
             } else {
                 LazyColumn {
-                    // Filtrar la lista de productos
                     val filteredProductos = productos.filter { producto ->
                         val categoria = listaCategorias.find { it.id == producto.idCategoria }
                         producto.nombre.contains(searchQuery, ignoreCase = true) ||
@@ -94,7 +111,7 @@ fun ListarProductosView(
                             producto,
                             navController,
                             listaCategorias,
-                            onDelete = { eliminarProducto(it) }
+                            onDelete = { productoViewModel.eliminarProducto(it) }
                         )
                     }
                 }
@@ -102,7 +119,6 @@ fun ListarProductosView(
         }
     }
 }
-
 @Composable
 fun ProductoItem(
     producto: Producto,
