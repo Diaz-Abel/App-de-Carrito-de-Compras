@@ -3,6 +3,7 @@ package com.fpuna.carrito.views.categoria
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,13 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Color
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
+
 @Composable
 fun EditarCategoriaView(
     navController: NavController,
@@ -65,16 +60,26 @@ fun ContentEditarView(
                 .padding(horizontal = 30.dp)
                 .padding(bottom = 15.dp)
         )
-        Button(
-            onClick = {
-                val categoria = Categoria(id = id, name = nombre)
-                viewModel.actualizarCategoria(categoria)
-                // cierra y vuelve a la vista anterior
-                navController.popBackStack()
+        Row {
+            // Botón de Cancelar
+            Button(
+                onClick = {
+                    // Cierra y vuelve a la vista anterior sin guardar cambios
+                    navController.popBackStack()
+                }
+            ) {
+                Text(text = "Cancelar")
             }
-        ) {
-            Text(text = "Editar")
+            Button(
+                onClick = {
+                    val categoria = Categoria(id = id, name = nombre)
+                    viewModel.actualizarCategoria(categoria)
+                    // cierra y vuelve a la vista anterior
+                    navController.popBackStack()
+                }
+            ) {
+                Text(text = "Guardar")
+            }
         }
     }
-
 }

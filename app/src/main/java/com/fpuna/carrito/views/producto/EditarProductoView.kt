@@ -2,6 +2,7 @@ package com.fpuna.carrito.views.producto
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -31,10 +31,7 @@ import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.models.Producto
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
 import com.fpuna.carrito.viewmodel.ProductoViewModel
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditarProductoView(
     navController: NavController,
@@ -128,24 +125,35 @@ fun EditarProductoView(
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-
-            Button(
-                onClick = {
-                    if (nombre.isNotEmpty() && precioVenta.isNotEmpty() && selectedCategoria != null) {
-                        val productoActualizado = Producto(
-                            idProducto = producto.idProducto,
-                            nombre = nombre,
-                            precioVenta = precioVenta.toDoubleOrNull() ?: 0.0,
-                            idCategoria = selectedCategoria!!.id
-                        )
-                        productoViewModel.actualizarProducto(productoActualizado)
+            Row {
+                // Botón de Cancelar
+                Button(
+                    onClick = {
+                        // Cierra y vuelve a la vista anterior sin guardar cambios
                         navController.popBackStack()
                     }
-                },
-                modifier = Modifier.padding(horizontal = 30.dp)
-            ) {
-                Text(text = "Guardar Cambios")
+                ) {
+                    Text(text = "Cancelar")
+                }
+                Button(
+                    onClick = {
+                        if (nombre.isNotEmpty() && precioVenta.isNotEmpty() && selectedCategoria != null) {
+                            val productoActualizado = Producto(
+                                idProducto = producto.idProducto,
+                                nombre = nombre,
+                                precioVenta = precioVenta.toDoubleOrNull() ?: 0.0,
+                                idCategoria = selectedCategoria!!.id
+                            )
+                            productoViewModel.actualizarProducto(productoActualizado)
+                            navController.popBackStack()
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 30.dp)
+                ) {
+                    Text(text = "Guardar")
+                }
             }
+
         }
     }
 }

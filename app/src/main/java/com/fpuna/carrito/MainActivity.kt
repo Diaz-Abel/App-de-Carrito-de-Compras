@@ -25,6 +25,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.fpuna.carrito.navegation.NavManager
@@ -82,7 +84,31 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
     val navController = rememberNavController()
     // Estado para el título
     var titulo by remember { mutableStateOf("Inicio") }
-    // [START android_compose_layout_material_modal_drawer]
+
+    // Observa la ruta actual del NavController
+    val backStackEntry = navController.currentBackStackEntryAsState()
+
+    // Cambia el título basado en la ruta actual
+    LaunchedEffect(backStackEntry.value?.destination?.route) {
+        when (backStackEntry.value?.destination?.route) {
+            "carrito" -> titulo = "Carrito"
+            "inicioVenta" -> titulo = "Inicio"
+            "inicioCategoria" -> titulo = "Categorías"
+            "agregarCategoria" -> titulo = "Agregar categoría"
+            "editarCategoria/{id}/{name}" -> titulo = "Editar categoría"
+            "inicioProducto" -> titulo = "Productos"
+            "agregarProducto" -> titulo = "Agregar producto"
+            "editarProducto/{id}/{nombre}" -> titulo = "Editar producto"
+            "inicioCliente" -> titulo = "Clientes"
+            "agregarCliente" -> titulo = "Agregar cliente"
+            "editarCliente/{cedula}" -> titulo = "Editar cliente"
+            "consultaVentas" -> titulo = "Consultar Ventas"
+            // Agrega más rutas según sea necesario
+            else -> titulo = "Inicio" // Valor por defecto o el que desees
+        }
+    }
+
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -93,7 +119,6 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     onClick = {
                         coroutineScope.launch { drawerState.close() }
                         navController.navigate("inicioVenta")
-                        titulo = "Inicio"
                     }
                 )
                 HorizontalDivider()
@@ -105,7 +130,6 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     onClick = {
                         coroutineScope.launch { drawerState.close() }
                         navController.navigate("inicioCategoria")
-                        titulo = "Categorias"
                     },
                 )
                 HorizontalDivider()
@@ -117,7 +141,6 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     onClick = {
                         coroutineScope.launch { drawerState.close() }
                         navController.navigate("inicioProducto")
-                        titulo = "Productos"
                     },
                 )
                 HorizontalDivider()
@@ -128,7 +151,6 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     onClick = {
                         coroutineScope.launch { drawerState.close() }
                         navController.navigate("inicioCliente")
-                        titulo = "Clientes"
                     }
                 )
                 HorizontalDivider()
@@ -140,7 +162,6 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     onClick = {
                         coroutineScope.launch { drawerState.close() }
                         navController.navigate("consultaVentas")
-                        titulo = "Consultar Ventas"
                     },
                 )
             }
@@ -171,13 +192,16 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     },
                     actions = {
                         // Agregar el ícono del carrito
-                        IconButton(onClick = { navController.navigate("carrito") }) {
+                        IconButton(onClick = {
+                            navController.navigate("carrito")
+                        }) {
                             Image(
                                 imageVector = Icons.Filled.ShoppingCart,
                                 contentDescription = "Carrito de compras",
                                 colorFilter = ColorFilter.tint(Color.White)
                             )
                         }
+
                     }
                 )
             }) { paddingValues ->

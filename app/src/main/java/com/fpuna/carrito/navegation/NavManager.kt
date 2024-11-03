@@ -48,14 +48,16 @@ fun NavManager(
 
         // VENTAS
         composable("inicioVenta") {
+            val categorias = categoriaViewModel.state.listaCategorias
             ListarVentaProductos(
                 navController,
                 productoViewModel,
-                carritoViewModel
+                carritoViewModel,
+                categorias
             )
         }
         composable("carrito") {
-            CarritoView(navController, carritoViewModel)
+            CarritoView(navController, carritoViewModel, ventaViewModel)
         }
         composable("venta") { VentaView(navController, ventaViewModel) }
 

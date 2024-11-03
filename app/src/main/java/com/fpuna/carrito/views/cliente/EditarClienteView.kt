@@ -3,6 +3,7 @@ package com.fpuna.carrito.views.cliente
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -79,21 +80,34 @@ fun ContentEditarView(
                     .padding(horizontal = 30.dp)
                     .padding(bottom = 15.dp)
             )
-            Button(
-                onClick = {
-                    val clienteActualizado = Cliente(
-                        idCliente = cliente.idCliente,
-                        cedula = cliente.cedula,
-                        nombre = nombre,
-                        apellido = apellido
-                    )
-                    viewModel.actualizarCliente(clienteActualizado)
-                    // Navega de regreso
-                    navController.popBackStack()
+            Row {
+                // Botón de Cancelar
+                Button(
+                    onClick = {
+                        // Cierra y vuelve a la vista anterior sin guardar cambios
+                        navController.popBackStack()
+                    }
+                ) {
+                    Text(text = "Cancelar")
                 }
-            ) {
-                Text(text = "Editar")
+                Button(
+                    onClick = {
+                        val clienteActualizado = Cliente(
+                            idCliente = cliente.idCliente,
+                            cedula = cliente.cedula,
+                            nombre = nombre,
+                            apellido = apellido
+                        )
+                        viewModel.actualizarCliente(clienteActualizado)
+                        // Navega de regreso
+                        navController.popBackStack()
+                    }
+                ) {
+                    Text(text = "Guardar")
+                }
             }
+
+
         }
     } else {
         // Mostrar un indicador de carga si el cliente no está disponible
