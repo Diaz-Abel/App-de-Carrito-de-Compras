@@ -11,34 +11,31 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.fpuna.carrito.models.CarritoItem
 import com.fpuna.carrito.models.Producto
 import com.fpuna.carrito.viewmodel.CarritoViewModel
 import com.fpuna.carrito.viewmodel.VentaViewModel
-import kotlinx.coroutines.launch
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Color
-import com.fpuna.carrito.models.Cliente
-import com.fpuna.carrito.models.Venta
-import com.fpuna.carrito.models.DetalleVenta
 
 @Composable
 fun CarritoView(
@@ -94,7 +91,9 @@ fun CarritoView(
         // Botón para vaciar carrito
         Button(
             onClick = { carritoViewModel.vaciarCarrito() },
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
         ) {
             Text("Vaciar Carrito")
         }
@@ -102,13 +101,15 @@ fun CarritoView(
         // Botón para finalizar orden
         Button(
             onClick = { mostrarFormularioCliente = true },
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
         ) {
             Text("Finalizar Orden")
         }
 
         // Formulario de datos del cliente al finalizar la orden
-        if (mostrarFormularioCliente) {
+        /*if (mostrarFormularioCliente) {
             FinalizarOrdenDialog(
                 onDismiss = { mostrarFormularioCliente = false },
                 onFinalizarOrden = { cedula, nombre, apellido ->
@@ -126,7 +127,7 @@ fun CarritoView(
                     }
                 }
             )
-        }
+        }*/
     }
 }
 
@@ -229,7 +230,11 @@ fun FinalizarOrdenDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 if (cedulaError) {
-                    Text("La cédula debe contener solo números", color = Color.Red, fontSize = 12.sp)
+                    Text(
+                        "La cédula debe contener solo números",
+                        color = Color.Red,
+                        fontSize = 12.sp
+                    )
                 }
 
                 // Campo Nombre con validación
@@ -265,8 +270,8 @@ fun FinalizarOrdenDialog(
         }
     )
 }
-
-fun finalizarOrden(
+// ARREGLAR !! NO SE ENCUENTRAN LOS MÉTODOS
+/*fun finalizarOrden(
     cedula: String,
     nombre: String,
     apellido: String,
@@ -303,4 +308,4 @@ fun finalizarOrden(
         }
         ventaViewModel.vaciarCarrito() // Limpia el carrito después de registrar la venta
     }
-}
+}*/

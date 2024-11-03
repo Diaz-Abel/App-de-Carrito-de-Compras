@@ -1,3 +1,5 @@
+package com.fpuna.carrito.viewmodel
+
 import android.database.sqlite.SQLiteConstraintException
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,7 +50,8 @@ class CategoriaViewModel(private val dao: CategoriaDao) : ViewModel() {
             dao.delete(categoria)
             uiState = "Categoría eliminada exitosamente"
         } catch (e: SQLiteConstraintException) {
-            uiState = "No se puede eliminar esta categoría porque está relacionada con otros registros."
+            uiState =
+                "No se puede eliminar esta categoría porque está relacionada con otros registros."
         }
     }
 }
