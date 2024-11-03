@@ -51,26 +51,30 @@ android {
 }
 
 dependencies {
+    // Room
     implementation(libs.androidx.room.runtime)
-    ksp(libs.room.compiler) // Usa solo KSP en lugar de annotationProcessor
+    ksp(libs.room.compiler) // KSP para el procesamiento de anotaciones de Room
+    implementation(libs.androidx.room.ktx)
 
+    // Navegación y Benchmark
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.benchmark.macro)
 
-    // Room y soporte de coroutines
-    implementation(libs.androidx.room.ktx) // Esto debería estar en libs si tienes una biblioteca de versiones
-
-    // Core
+    // Core y Lifecycle
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.4.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
+    implementation("androidx.compose.material3:material3:1.0.0")
 
     // Testing
     testImplementation(libs.junit)
@@ -80,7 +84,11 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
-    // Extensiones de lifecycle para Compose y LiveData
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.4.1")
+
+    // LiveData para Compose
+    implementation("androidx.compose.runtime:runtime-livedata:1.1.0")
+    implementation("androidx.room:room-runtime:2.4.2")
+    implementation("androidx.room:room-ktx:2.4.2")
+    ksp("androidx.room:room-compiler:2.4.2")
+
 }

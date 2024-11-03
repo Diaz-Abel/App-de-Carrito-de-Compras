@@ -21,6 +21,8 @@ import com.fpuna.carrito.models.Cliente
 import com.fpuna.carrito.models.Producto
 import com.fpuna.carrito.models.Venta
 import com.fpuna.carrito.viewmodel.VentaViewModel
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 
 @Composable
 fun VentaView(navController: NavController, ventaViewModel: VentaViewModel) {

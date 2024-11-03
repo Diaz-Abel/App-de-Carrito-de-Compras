@@ -1,5 +1,4 @@
-package com.fpuna.carrito.viewmodel
-
+import android.database.sqlite.SQLiteConstraintException
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,26 +15,40 @@ class CategoriaViewModel(private val dao: CategoriaDao) : ViewModel() {
     var state by mutableStateOf(CategoriaState())
         private set
 
+    var uiState by mutableStateOf<String?>(null)
+
     init {
         viewModelScope.launch {
             dao.getAll().collectLatest {
-                state = state.copy(
-                    // actualiza el estado de la lista de categorias
-                    listaCategorias = it
-                )
+                state = state.copy(listaCategorias = it)
             }
         }
     }
 
     fun agregarCategoria(categoria: Categoria) = viewModelScope.launch {
-        dao.insert(categoria = categoria)
+        try {
+            dao.insert(categoria)
+            uiState = "Categoría agregada exitosamente"
+        } catch (e: Exception) {
+            uiState = "Error al agregar categoría"
+        }
     }
 
     fun actualizarCategoria(categoria: Categoria) = viewModelScope.launch {
-        dao.update(categoria = categoria)
+        try {
+            dao.update(categoria)
+            uiState = "Categoría actualizada exitosamente"
+        } catch (e: Exception) {
+            uiState = "Error al actualizar categoría"
+        }
     }
 
     fun borrarCategoria(categoria: Categoria) = viewModelScope.launch {
-        dao.delete(categoria = categoria)
+        try {
+            dao.delete(categoria)
+            uiState = "Categoría eliminada exitosamente"
+        } catch (e: SQLiteConstraintException) {
+            uiState = "No se puede eliminar esta categoría porque está relacionada con otros registros."
+        }
     }
 }

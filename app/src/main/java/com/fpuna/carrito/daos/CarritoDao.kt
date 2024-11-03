@@ -21,7 +21,9 @@ interface CarritoDao {
     @Query("DELETE FROM carrito")
     suspend fun clearCarrito()
 
-    // Cambiar este método para que sea suspend y devuelva un Producto
     @Query("SELECT * FROM productos WHERE idProducto=:id")
     suspend fun getProductosById(id: Int): Producto
+
+    @Query("SELECT * FROM carrito WHERE idProducto = :idProducto LIMIT 1")
+    suspend fun getCarritoItemByIdProducto(idProducto: Int): CarritoItem?
 }

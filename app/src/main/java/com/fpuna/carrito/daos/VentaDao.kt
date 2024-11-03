@@ -6,8 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.fpuna.carrito.models.Venta
 import com.fpuna.carrito.models.DetalleVentaProducto
-import com.fpuna.carrito.models.Cliente
-import com.fpuna.carrito.models.Producto
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -25,11 +23,10 @@ interface VentaDao {
     suspend fun getVentasByCliente(idCliente: Long): List<Venta>
 
     @Query("""
-    SELECT productos.nombre, detalle_ventas.cantidad, detalle_ventas.precio 
-    FROM detalle_ventas 
-    JOIN productos ON productos.idProducto = detalle_ventas.idProducto 
-    WHERE detalle_ventas.idVenta = :idVenta
+        SELECT productos.nombre, detalle_ventas.cantidad, detalle_ventas.precio 
+        FROM detalle_ventas 
+        JOIN productos ON productos.idProducto = detalle_ventas.idProducto 
+        WHERE detalle_ventas.idVenta = :idVenta
     """)
     fun getDetallesDeVenta(idVenta: Long): Flow<List<DetalleVentaProducto>>
-
 }

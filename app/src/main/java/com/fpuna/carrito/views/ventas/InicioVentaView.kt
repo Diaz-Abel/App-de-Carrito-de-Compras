@@ -32,8 +32,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import com.fpuna.carrito.models.DetalleVentaProducto
-
-
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.Color
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -218,6 +221,3 @@ fun DetalleVentaView(
         }
     }
 }
-
-
-

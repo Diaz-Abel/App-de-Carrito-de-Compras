@@ -20,6 +20,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 
 @Composable
 fun AgregarCategoriaView(navController: NavController, viewModel: CategoriaViewModel) {
