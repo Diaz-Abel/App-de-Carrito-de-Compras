@@ -28,6 +28,7 @@ fun FinalizarOrdenView(
     var mostrarCamposCliente by remember { mutableStateOf(false) }
     var showAlertDialog by remember { mutableStateOf(false) }
     var alertMessage by remember { mutableStateOf("") }
+    var showPurchaseConfirmation by remember { mutableStateOf(false) } // Nuevo estado para el diálogo de confirmación de compra
 
     Column(
         modifier = Modifier
@@ -53,19 +54,17 @@ fun FinalizarOrdenView(
                 } else {
                     ventaViewModel.verificarCliente(clienteCedula) { cliente ->
                         if (cliente != null) {
-                            // Cliente encontrado
                             clienteNombre = cliente.nombre
                             clienteApellido = cliente.apellido
                             clienteExistente = true
                         } else {
-                            // Cliente no encontrado
                             clienteNombre = ""
                             clienteApellido = ""
                             clienteExistente = false
                             alertMessage = "Cliente no encontrado. Por favor, ingresa el nombre y apellido."
                             showAlertDialog = true
                         }
-                        mostrarCamposCliente = true // Muestra los campos de nombre y apellido después de verificar
+                        mostrarCamposCliente = true
                     }
                 }
             },
@@ -113,7 +112,8 @@ fun FinalizarOrdenView(
                         venta = venta,
                         itemsCarrito = itemsCarrito
                     )
-                    navController.popBackStack()
+
+                    showPurchaseConfirmation = true // Mostrar el mensaje de confirmación de compra
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -130,8 +130,26 @@ fun FinalizarOrdenView(
                 title = { Text("Advertencia") },
                 text = { Text(alertMessage) },
                 confirmButton = {
+                    Button(onClick = { showAlertDialog = false }) {
+                        Text("Aceptar")
+                    }
+                }
+            )
+        }
+
+        // Diálogo de confirmación de compra
+        if (showPurchaseConfirmation) {
+            AlertDialog(
+                onDismissRequest = {
+                    showPurchaseConfirmation = false
+                    navController.popBackStack()
+                },
+                title = { Text("Compra exitosa") },
+                text = { Text("Su compra ya fue procesada") },
+                confirmButton = {
                     Button(onClick = {
-                        showAlertDialog = false
+                        showPurchaseConfirmation = false
+                        navController.popBackStack() // Regresar al inicio
                     }) {
                         Text("Aceptar")
                     }
@@ -140,3 +158,4 @@ fun FinalizarOrdenView(
         }
     }
 }
+
