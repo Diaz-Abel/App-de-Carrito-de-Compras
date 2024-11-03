@@ -25,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,20 +41,6 @@ import com.fpuna.carrito.viewmodel.CategoriaViewModel
 @Composable
 fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewModel) {
     var searchQuery by remember { mutableStateOf("") }
-    val uiState = viewModel.uiState
-    var showInfoDialog by remember { mutableStateOf(false) }
-    var infoMessage by remember { mutableStateOf("") }
-
-    // LaunchedEffect para manejar la visibilidad del mensaje
-    LaunchedEffect(uiState) {
-        if (uiState != null && uiState.isNotEmpty()) {
-            infoMessage = uiState
-            showInfoDialog = true
-            kotlinx.coroutines.delay(3000) // Muestra el mensaje durante 3 segundos
-            showInfoDialog = false
-            viewModel.uiState = null // Reinicia el estado después de mostrar el mensaje
-        }
-    }
 
     Scaffold(
         floatingActionButton = {
@@ -101,16 +86,6 @@ fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewMo
             }
         }
 
-        // Mostrar el Dialog informativo si es visible
-        if (showInfoDialog) {
-            AlertDialog(
-                onDismissRequest = { showInfoDialog = false },
-                title = { Text("Información") },
-                text = { Text(infoMessage) },
-                confirmButton = { },
-                dismissButton = { }
-            )
-        }
     }
 }
 

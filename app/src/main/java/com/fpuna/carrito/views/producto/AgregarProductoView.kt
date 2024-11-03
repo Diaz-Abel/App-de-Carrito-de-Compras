@@ -144,7 +144,8 @@ fun ContentAgregarProductoView(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Center
+
         ) {
             Button(
                 onClick = {
@@ -173,6 +174,7 @@ fun ContentAgregarProductoView(
 
                 },
                 modifier = Modifier.padding(horizontal = 30.dp),
+
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = Color.White
