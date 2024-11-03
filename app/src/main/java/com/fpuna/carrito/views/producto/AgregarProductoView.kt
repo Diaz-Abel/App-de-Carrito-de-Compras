@@ -30,8 +30,6 @@ import androidx.navigation.NavController
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.models.Producto
 import com.fpuna.carrito.viewmodel.ProductoViewModel
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +55,9 @@ fun ContentAgregarProductoView(
     var precioVenta by remember { mutableStateOf("") }
     var selectedCategoria by remember { mutableStateOf<Categoria?>(null) }
     var showDialog by remember { mutableStateOf(false) }
+
+    var showAlertDialog by remember { mutableStateOf(false) }
+    var alertMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -125,6 +126,19 @@ fun ContentAgregarProductoView(
                 }
             )
         }
+        // Diálogo de advertencia
+        if (showAlertDialog) {
+            AlertDialog(
+                onDismissRequest = { showAlertDialog = false },
+                title = { Text("Advertencia") },
+                text = { Text(alertMessage) },
+                confirmButton = {
+                    TextButton(onClick = { showAlertDialog = false }) {
+                        Text("Cerrar")
+                    }
+                }
+            )
+        }
 
         Row(
             modifier = Modifier
@@ -134,15 +148,29 @@ fun ContentAgregarProductoView(
         ) {
             Button(
                 onClick = {
-                    if (nombre.isNotEmpty() && precioVenta.isNotEmpty() && selectedCategoria != null) {
-                        val producto = Producto(
-                            nombre = nombre,
-                            precioVenta = precioVenta.toDouble(),
-                            idCategoria = selectedCategoria!!.id
-                        )
-                        viewModel.agregarProducto(producto)
-                        navController.popBackStack()
+
+                    // Validación de entrada
+                    if (nombre.isEmpty() || precioVenta.isEmpty() || selectedCategoria == null) {
+                        alertMessage = "Por favor, completa todos los campos."
+                        showAlertDialog = true
+                    } else {
+                        // Validación de precio
+                        val precio = precioVenta.toDoubleOrNull()
+                        if (precio == null || precio <= 0) {
+                            alertMessage = "El precio debe ser un número válido mayor que cero."
+                            showAlertDialog = true
+                        } else {
+                            // Crear el producto y agregarlo
+                            val producto = Producto(
+                                nombre = nombre,
+                                precioVenta = precio,
+                                idCategoria = selectedCategoria!!.id
+                            )
+                            viewModel.agregarProducto(producto)
+                            navController.popBackStack()
+                        }
                     }
+
                 },
                 modifier = Modifier.padding(horizontal = 30.dp),
                 colors = ButtonDefaults.buttonColors(
