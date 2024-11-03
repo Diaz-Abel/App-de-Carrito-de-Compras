@@ -12,6 +12,7 @@ import com.fpuna.carrito.states.ClienteState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+
 class ClienteViewModel(private val dao: ClienteDao) : ViewModel() {
     var state by mutableStateOf(ClienteState())
         private set
@@ -38,7 +39,7 @@ class ClienteViewModel(private val dao: ClienteDao) : ViewModel() {
     fun actualizarCliente(cliente: Cliente) = viewModelScope.launch {
         try {
             dao.update(cliente)
-            uiState = "Cliente actualizada exitosamente"
+            uiState = "Cliente actualizado exitosamente"
         } catch (e: Exception) {
             uiState = "Error al actualizar Cliente"
         }
@@ -47,10 +48,10 @@ class ClienteViewModel(private val dao: ClienteDao) : ViewModel() {
     fun borrarCliente(cliente: Cliente) = viewModelScope.launch {
         try {
             dao.delete(cliente)
-            uiState = "Categoría eliminada exitosamente"
+            uiState = "Cliente eliminada exitosamente"
         } catch (e: SQLiteConstraintException) {
             uiState =
-                "No se puede eliminar esta categoría porque está relacionada con otros registros."
+                "No se puede eliminar este cliente porque está relacionada con otros registros."
         }
     }
 
