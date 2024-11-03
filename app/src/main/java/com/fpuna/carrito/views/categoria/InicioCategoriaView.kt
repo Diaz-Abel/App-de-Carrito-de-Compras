@@ -149,7 +149,7 @@ fun CategoriaItem(
                 TextButton(onClick = { showConfirmDialog = false }) { Text("Cancelar") }
             },
             title = { Text("Confirmar Eliminación") },
-            text = { Text("¿Seguro que quieres eliminar esta categoría?") }
+            text = { Text("¿Seguro que desea eliminar esta categoría?") }
         )
     }
 }

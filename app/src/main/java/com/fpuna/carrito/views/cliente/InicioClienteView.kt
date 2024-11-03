@@ -172,7 +172,7 @@ fun ClienteItem(
                 TextButton(onClick = { showConfirmDialog = false }) { Text("Cancelar") }
             },
             title = { Text("Confirmar Eliminación") },
-            text = { Text("¿Seguro que quieres eliminar este cliente?") } // Cambié el texto a "cliente" para mayor claridad
+            text = { Text("¿Seguro que desea dar de baja este cliente?") } // Cambié el texto a "cliente" para mayor claridad
         )
     }
 }

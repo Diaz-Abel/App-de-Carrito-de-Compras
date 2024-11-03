@@ -174,7 +174,7 @@ fun ProductoItem(
                 TextButton(onClick = { showConfirmDialog = false }) { Text("Cancelar") }
             },
             title = { Text("Confirmar Eliminación") },
-            text = { Text("¿Seguro que quieres eliminar este producto?") }
+            text = { Text("¿Seguro que desea eliminar este producto?") }
         )
     }
 }
