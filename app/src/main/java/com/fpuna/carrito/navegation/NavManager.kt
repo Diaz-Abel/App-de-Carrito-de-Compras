@@ -18,6 +18,8 @@ import com.fpuna.carrito.viewmodel.VentaViewModel
 import com.fpuna.carrito.views.categoria.AgregarCategoriaView
 import com.fpuna.carrito.views.categoria.EditarCategoriaView
 import com.fpuna.carrito.views.categoria.InicioCategoriaView
+import com.fpuna.carrito.views.cliente.AgregarClienteView
+import com.fpuna.carrito.views.cliente.EditarClienteView
 import com.fpuna.carrito.views.cliente.InicioClienteView
 import com.fpuna.carrito.views.producto.AgregarProductoView
 import com.fpuna.carrito.views.producto.EditarProductoView
@@ -138,6 +140,21 @@ fun NavManager(
 
         composable("inicioCliente") {
             InicioClienteView(navController, clienteViewModel)
+        }
+        composable(
+            route = "editarCliente/{cedula}",
+            arguments = listOf(
+                navArgument(name = "cedula") { type = NavType.StringType },
+            )
+        ) {
+            EditarClienteView(
+                navController,
+                clienteViewModel,
+                it.arguments!!.getString("cedula")!!
+            )
+        }
+        composable(route = "agregarCliente") {
+            AgregarClienteView(navController, clienteViewModel)
         }
 
 

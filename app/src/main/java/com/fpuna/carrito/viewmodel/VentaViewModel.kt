@@ -19,7 +19,7 @@ class VentaViewModel(private val ventaDao: VentaDao, private val clienteDao: Cli
         viewModelScope.launch {
             val existingCliente = clienteDao.getClienteByCedula(cliente.cedula)
             if (existingCliente == null) {
-                clienteDao.insertCliente(cliente)
+                clienteDao.insert(cliente)
             }
             ventaDao.insertVenta(venta)
         }

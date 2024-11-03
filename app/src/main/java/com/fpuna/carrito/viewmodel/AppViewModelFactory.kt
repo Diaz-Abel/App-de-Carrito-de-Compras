@@ -7,10 +7,6 @@ import com.fpuna.carrito.daos.CategoriaDao
 import com.fpuna.carrito.daos.ClienteDao
 import com.fpuna.carrito.daos.ProductoDao
 import com.fpuna.carrito.daos.VentaDao
-import com.fpuna.carrito.viewmodel.CategoriaViewModel
-import com.fpuna.carrito.viewmodel.ProductoViewModel
-import com.fpuna.carrito.viewmodel.VentaViewModel
-import com.fpuna.carrito.viewmodel.CarritoViewModel
 
 
 // Esta clase permite crear instancias de diferentes ViewModels de manera dinámica.
@@ -37,6 +33,10 @@ class AppViewModelFactory(
 
             modelClass.isAssignableFrom(CarritoViewModel::class.java) -> {
                 CarritoViewModel(carritoDao) as T
+            }
+
+            modelClass.isAssignableFrom(ClienteViewModel::class.java) -> {
+                ClienteViewModel(clienteDao) as T
             }
 
             else -> throw IllegalArgumentException("ViewModel desconocido")

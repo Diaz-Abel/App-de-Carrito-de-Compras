@@ -40,8 +40,7 @@ import com.fpuna.carrito.navegation.NavManager
 import com.fpuna.carrito.ui.theme.CarritoTheme
 import com.fpuna.carrito.viewmodel.AppViewModelFactory
 import kotlinx.coroutines.launch
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +54,7 @@ class MainActivity : ComponentActivity() {
         val ventaDao = dataBase.ventaDao()
         val clienteDao = dataBase.clienteDao()
         val carritoDao = dataBase.carritoDao()
+
         // Crea el ViewModelFactory con daos necesarios
         val viewModelFactory =
             AppViewModelFactory(categoriaDao, productoDao, ventaDao, clienteDao, carritoDao)
