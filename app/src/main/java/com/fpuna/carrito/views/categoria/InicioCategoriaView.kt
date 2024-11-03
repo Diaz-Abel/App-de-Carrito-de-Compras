@@ -132,7 +132,7 @@ fun CategoriaItem(
 
                 // Botón de Eliminar
                 Button(
-                    onClick = { viewModel.borrarCategoria(categoria) },
+                    onClick = { showConfirmDialog = true },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                     modifier = Modifier.weight(1f)
                 ) {

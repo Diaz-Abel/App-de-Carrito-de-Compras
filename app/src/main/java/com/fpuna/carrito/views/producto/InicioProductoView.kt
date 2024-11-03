@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -22,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,8 +38,6 @@ import androidx.navigation.NavController
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.models.Producto
 import com.fpuna.carrito.viewmodel.ProductoViewModel
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,6 +113,7 @@ fun ProductoItem(
     onDelete: (Producto) -> Unit
 ) {
     val categoria = listaCategorias.find { it.id == producto.idCategoria }
+    var showConfirmDialog by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -153,7 +154,7 @@ fun ProductoItem(
 
                 // Botón de Eliminar
                 Button(
-                    onClick = { onDelete(producto) },
+                    onClick = { showConfirmDialog = true },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                     modifier = Modifier.weight(1f)
                 ) {
@@ -161,5 +162,21 @@ fun ProductoItem(
                 }
             }
         }
+    }
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDelete(producto)
+                    showConfirmDialog = false
+                }) { Text("Eliminar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) { Text("Cancelar") }
+            },
+            title = { Text("Confirmar Eliminación") },
+            text = { Text("¿Seguro que quieres eliminar este producto?") }
+        )
     }
 }
