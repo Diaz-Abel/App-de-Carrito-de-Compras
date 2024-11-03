@@ -168,7 +168,7 @@ fun ProductoItem(
                 TextButton(onClick = {
                     onDelete(producto)
                     showConfirmDialog = false
-                }) { Text("Eliminar") }
+                }) { Text("Dar de Baja Producto") }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmDialog = false }) { Text("Cancelar") }

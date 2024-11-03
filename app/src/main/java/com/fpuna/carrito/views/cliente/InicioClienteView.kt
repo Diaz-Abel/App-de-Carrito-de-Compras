@@ -166,7 +166,7 @@ fun ClienteItem(
                 TextButton(onClick = {
                     viewModel.borrarCliente(cliente)
                     showConfirmDialog = false
-                }) { Text("Eliminar") }
+                }) { Text("Dar de Baja Cliente") }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmDialog = false }) { Text("Cancelar") }

@@ -80,7 +80,7 @@ fun ContentAgregarView(
                 navController.popBackStack()
             }
         ) {
-            Text(text = "Agregar")
+            Text(text = "Agregar Nuevo Cliente")
         }
     }
 
