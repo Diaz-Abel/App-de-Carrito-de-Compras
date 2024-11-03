@@ -301,11 +301,12 @@ fun ConsultaVentasView(
         LazyColumn {
             items(ventas.filter { venta ->
                 // Filtrar las ventas según si el cliente está en la lista de clientes filtrados
-                clientes.values.any { cliente ->
-                    (cliente.nombre.contains(filtroCedula, ignoreCase = true) ||
-                            cliente.cedula.contains(filtroCedula, ignoreCase = true)) &&
-                            cliente.idCliente == venta.idCliente
-                }
+                val cliente = clientes[venta.idCliente]
+                val nombreCoincide =
+                    cliente?.nombre?.contains(filtroCedula, ignoreCase = true) == true
+                val cedulaCoincide =
+                    cliente?.cedula?.contains(filtroCedula, ignoreCase = true) == true
+                nombreCoincide || cedulaCoincide
             }) { venta ->
                 val cliente = clientes[venta.idCliente]
                 if (cliente != null) {

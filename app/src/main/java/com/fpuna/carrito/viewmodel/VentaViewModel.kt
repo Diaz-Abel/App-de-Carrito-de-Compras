@@ -1,5 +1,6 @@
 package com.fpuna.carrito.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fpuna.carrito.daos.ClienteDao
@@ -14,16 +15,18 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class VentaViewModel(
     private val ventaDao: VentaDao,
     private val clienteDao: ClienteDao,
-    private val productoDao: ProductoDao // Agrega ProductoDao para obtener los precios
+    private val productoDao: ProductoDao
 ) : ViewModel() {
 
     // Estado para la lista de ventas
     private val _ventasFlow = MutableStateFlow<List<Venta>>(emptyList())
-    val ventasFlow: StateFlow<List<Venta>> = _ventasFlow // Exponer solo como StateFlow
+    val ventasFlow: StateFlow<List<Venta>> = _ventasFlow
 
     // Inicializar y cargar las ventas
     init {
@@ -37,10 +40,41 @@ class VentaViewModel(
         }
     }
 
+    // Convertir fecha de "dd/MM/yyyy" a "yyyy-MM-dd"
+    private fun convertirFecha(fecha: String): String {
+        return try {
+            val inputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val date = inputFormat.parse(fecha)
+            outputFormat.format(date ?: return "")
+        } catch (e: Exception) {
+            Log.e("VentaViewModel", "Error al convertir la fecha: ${e.message}")
+            ""
+        }
+    }
+
     // Filtrar ventas por fecha
     fun filtrarVentasPorFecha(fecha: String) {
+        val fechaConvertida = convertirFecha(fecha) // Convertir la fecha antes de usarla
+        Log.d(
+            "ConsultaVentasViewModel",
+            "Filtrando ventas por fecha: $fechaConvertida"
+        ) // Log de la fecha convertida
         viewModelScope.launch {
-            _ventasFlow.value = ventaDao.getVentasByFecha(fecha)
+            _ventasFlow.value = ventaDao.getVentasByFecha(fechaConvertida)
+            val ventasFiltradas = ventaDao.getVentasByFecha(fechaConvertida)
+            Log.d(
+                "ConsultaVentasViewModel",
+                "Ventas filtradas: $ventasFiltradas"
+            ) // Log de las ventas obtenidas
+            obtenerFechasEjemplo()
+        }
+    }
+
+    fun obtenerFechasEjemplo() {
+        viewModelScope.launch {
+            val fechasEjemplo = ventaDao.getFechasDeVentas()
+            Log.d("ConsultaVentasViewModel", "Fechas de ventas almacenadas: $fechasEjemplo")
         }
     }
 
