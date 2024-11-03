@@ -71,25 +71,33 @@ fun InicioClienteView(navController: NavController, viewModel: ClienteViewModel)
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                label = { Text("Buscar por nombre") },
+                label = { Text("Buscar por nombre o cedula") },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(8.dp))
-
-            LazyColumn {
-                val filteredClientes = viewModel.state.listaClientes.filter {
-                    it.nombre.contains(searchQuery, ignoreCase = true)
-                }
-
-                items(filteredClientes) { cliente ->
-                    ClienteItem(
-                        cliente = cliente,
-                        navController = navController,
-                        viewModel = viewModel
-                    )
+            val clientes = viewModel.state.listaClientes
+            if (clientes.isEmpty()) {
+                Text("No hay clientes agregados")
+            } else {
+                LazyColumn {
+                    // Filtrar la lista de clientes
+                    val filteredClientes = clientes.filter { cliente ->
+                        cliente.nombre.contains(
+                            searchQuery,
+                            ignoreCase = true
+                        ) || cliente.cedula.contains(searchQuery, ignoreCase = true)
+                    }
+                    items(filteredClientes) { cliente ->
+                        ClienteItem(
+                            cliente = cliente,
+                            navController = navController,
+                            viewModel = viewModel
+                        )
+                    }
                 }
             }
+
         }
     }
 }
