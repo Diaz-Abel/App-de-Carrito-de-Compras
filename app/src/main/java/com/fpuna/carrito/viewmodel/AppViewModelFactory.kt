@@ -28,7 +28,7 @@ class AppViewModelFactory(
             }
 
             modelClass.isAssignableFrom(VentaViewModel::class.java) -> {
-                VentaViewModel(ventaDao, clienteDao) as T
+                VentaViewModel(ventaDao, clienteDao, productoDao) as T
             }
 
             modelClass.isAssignableFrom(CarritoViewModel::class.java) -> {
