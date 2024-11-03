@@ -7,13 +7,22 @@ import com.fpuna.carrito.models.CarritoItem
 import com.fpuna.carrito.models.Producto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class CarritoViewModel(private val carritoDao: CarritoDao) : ViewModel() {
 
     // StateFlow para gestionar el estado en vivo del carrito
     private val _itemsCarrito = MutableStateFlow<List<CarritoItem>>(emptyList())
-    val itemsCarrito: StateFlow<List<CarritoItem>> = _itemsCarrito
+    val itemsCarrito: StateFlow<List<CarritoItem>> = _itemsCarrito.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            carritoDao.getItemsFlow().collect { items ->
+                _itemsCarrito.value = items
+            }
+        }
+    }
 
     // Método para agregar productos al carrito, agrupando si ya existe el mismo producto
     fun agregarAlCarrito(producto: Producto, cantidad: Int) {
@@ -64,6 +73,24 @@ class CarritoViewModel(private val carritoDao: CarritoDao) : ViewModel() {
         viewModelScope.launch {
             val items = carritoDao.getAllCarritoItems()
             onResult(items)
+        }
+    }
+
+    // Método para actualizar la cantidad de un producto en el carrito
+    fun actualizarCantidadProducto(idCarritoItem: Long, nuevaCantidad: Int) {
+        viewModelScope.launch {
+            val carritoItemExistente = carritoDao.getCarritoItemById(idCarritoItem)
+            if (carritoItemExistente != null) {
+                // Solo actualiza si la nueva cantidad es mayor a 0
+                if (nuevaCantidad > 0) {
+                    val itemActualizado = carritoItemExistente.copy(cantidad = nuevaCantidad)
+                    carritoDao.insertCarritoItem(itemActualizado)
+                } else {
+                    // Si la nueva cantidad es 0, eliminar el item del carrito
+                    eliminarItemDelCarrito(idCarritoItem)
+                }
+                actualizarCarrito() // Actualizar la lista del carrito después de actualizar
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.fpuna.carrito.models.CarritoItem
 import com.fpuna.carrito.models.Producto
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CarritoDao {
@@ -26,4 +27,11 @@ interface CarritoDao {
 
     @Query("SELECT * FROM carrito WHERE idProducto = :idProducto LIMIT 1")
     suspend fun getCarritoItemByIdProducto(idProducto: Int): CarritoItem?
+
+    @Query("SELECT * FROM carrito")
+    fun getItemsFlow(): Flow<List<CarritoItem>>
+
+    // Método para obtener un item del carrito por ID
+    @Query("SELECT * FROM carrito WHERE idCarritoItem = :idCarritoItem LIMIT 1")
+    suspend fun getCarritoItemById(idCarritoItem: Long): CarritoItem?
 }

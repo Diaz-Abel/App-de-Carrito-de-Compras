@@ -4,9 +4,11 @@ package com.fpuna.carrito.views.cliente
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -90,6 +92,7 @@ fun ContentEditarView(
                 ) {
                     Text(text = "Cancelar")
                 }
+                Spacer(modifier = Modifier.width(8.dp))
                 Button(
                     onClick = {
                         val clienteActualizado = Cliente(
