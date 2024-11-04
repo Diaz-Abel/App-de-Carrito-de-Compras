@@ -21,6 +21,10 @@ interface ClienteDao {
     @Query("SELECT * FROM clientes WHERE idCliente = :id")
     suspend fun getClienteById(id: Long): Cliente
 
+    @Query("SELECT * FROM clientes WHERE nombre LIKE '%' || :nombre || '%'")
+    suspend fun getClientesByNombre(nombre: String): List<Cliente>
+
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(cliente: Cliente): Long
 
