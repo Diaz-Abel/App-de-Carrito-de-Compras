@@ -79,13 +79,26 @@ class VentaViewModel(
     }
 
     // Filtrar ventas por cliente (nombre, apellido, o cédula)
-    fun filtrarVentasPorCliente(cedula: String) {
+    fun filtrarVentasPorCliente(query: String) {
         viewModelScope.launch {
-            val cliente = clienteDao.getClienteByCedula(cedula)
-            if (cliente != null) {
-                _ventasFlow.value = ventaDao.getVentasByCliente(cliente.idCliente)
+            // Primero, intenta encontrar el cliente por cédula
+            val clientePorCedula = clienteDao.getClienteByCedula(query)
+
+            if (clientePorCedula != null) {
+                // Si encontró un cliente por cédula, carga sus ventas
+                _ventasFlow.value = ventaDao.getVentasByCliente(clientePorCedula.idCliente)
             } else {
-                _ventasFlow.value = emptyList() // Cliente no encontrado
+                // Si no encontró por cédula, intenta buscar por nombre
+                val clientesPorNombre = clienteDao.getClientesByNombre(query)
+
+                // Recolecta todas las ventas de clientes cuyo nombre coincide con el query
+                val ventas = mutableListOf<Venta>()
+                for (cliente in clientesPorNombre) {
+                    ventas.addAll(ventaDao.getVentasByCliente(cliente.idCliente))
+                }
+
+                // Actualiza el flujo con las ventas encontradas
+                _ventasFlow.value = ventas
             }
         }
     }

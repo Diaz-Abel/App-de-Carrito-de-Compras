@@ -227,18 +227,19 @@ fun ConsultaVentasView(
     ventaViewModel: VentaViewModel,
     navController: NavHostController
 ) {
+    LaunchedEffect(Unit) {
+        ventaViewModel.cargarVentas()
+    }
+
     val ventas by ventaViewModel.ventasFlow.collectAsState()
     var filtroFecha by remember { mutableStateOf("") }
     var filtroCedula by remember { mutableStateOf("") }
     val context = LocalContext.current
-    val clientes =
-        remember { mutableStateMapOf<Long, Cliente>() } // Usamos un Map para almacenar clientes
+    val clientes = remember { mutableStateMapOf<Long, Cliente>() }
 
-    // Cargar clientes cuando las ventas cambian
     LaunchedEffect(ventas) {
         for (venta in ventas) {
             if (!clientes.contains(venta.idCliente)) {
-                // Obtener cliente solo si no está en el mapa
                 val cliente = ventaViewModel.obtenerClientePorId(venta.idCliente)
                 clientes[venta.idCliente] = cliente
             }
@@ -246,19 +247,18 @@ fun ConsultaVentasView(
     }
 
     Column(
-        modifier = Modifier.padding(16.dp) // Aplicar espaciado de 16dp en todos lados
+        modifier = Modifier.padding(16.dp)
     ) {
-        // Filtro por fecha como encabezado
         Text(
             text = "Filtrar por Fecha",
-            style = MaterialTheme.typography.bodySmall,  // Usar un estilo de encabezado
+            style = MaterialTheme.typography.bodySmall,
         )
-        Spacer(modifier = Modifier.height(8.dp)) // Espaciado vertical entre el encabezado y el siguiente elemento
+        Spacer(modifier = Modifier.height(8.dp))
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {  // Hacer la fila clickeable
+                .clickable {
                     showDatePicker(context) { selectedDate ->
                         filtroFecha = selectedDate
                         ventaViewModel.filtrarVentasPorFecha(filtroFecha)
@@ -266,48 +266,33 @@ fun ConsultaVentasView(
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icono de calendario no clickeable
             Icon(
                 imageVector = Icons.Filled.CalendarToday,
                 contentDescription = "Seleccionar Fecha",
-                modifier = Modifier.padding(start = 8.dp) // Espaciado a la izquierda
+                modifier = Modifier.padding(start = 8.dp)
             )
 
-            // Mostrar la fecha seleccionada
             Text(
                 text = if (filtroFecha.isNotEmpty()) filtroFecha else "Fecha",
                 color = if (filtroFecha.isNotEmpty()) Color.Black else Color.Gray,
-                modifier = Modifier.padding(start = 8.dp) // Espaciado a la izquierda
+                modifier = Modifier.padding(start = 8.dp)
             )
         }
-        Spacer(modifier = Modifier.height(16.dp)) // Espaciado vertical después del filtro de fecha
+        Spacer(modifier = Modifier.height(16.dp))
 
         TextField(
             value = filtroCedula,
             onValueChange = {
                 filtroCedula = it
-                if (filtroCedula.isNotEmpty()) {
-                    ventaViewModel.filtrarVentasPorCliente(filtroCedula)
-                } else {
-                    ventaViewModel.cargarVentas() // Cargar todas las ventas si se elimina el filtro
-                }
+                ventaViewModel.filtrarVentasPorCliente(filtroCedula)
             },
             label = { Text("Buscar por nombre o cédula") },
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(16.dp)) // Espaciado vertical después del TextField
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Listado de ventas filtradas por clientes
         LazyColumn {
-            items(ventas.filter { venta ->
-                // Filtrar las ventas según si el cliente está en la lista de clientes filtrados
-                val cliente = clientes[venta.idCliente]
-                val nombreCoincide =
-                    cliente?.nombre?.contains(filtroCedula, ignoreCase = true) == true
-                val cedulaCoincide =
-                    cliente?.cedula?.contains(filtroCedula, ignoreCase = true) == true
-                nombreCoincide || cedulaCoincide
-            }) { venta ->
+            items(ventas) { venta ->
                 val cliente = clientes[venta.idCliente]
                 if (cliente != null) {
                     VentaItem(venta, cliente) {
@@ -318,7 +303,6 @@ fun ConsultaVentasView(
         }
     }
 }
-
 
 fun showDatePicker(context: Context, onDateSelected: (String) -> Unit) {
     val calendar = Calendar.getInstance()
