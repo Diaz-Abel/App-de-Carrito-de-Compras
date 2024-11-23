@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fpuna.carrito.daos.ProductoDao
+import com.fpuna.carrito.models.CarritoItem
 import com.fpuna.carrito.models.Producto
 import com.fpuna.carrito.states.ProductoState
 import kotlinx.coroutines.flow.collectLatest
@@ -45,6 +46,30 @@ class ProductoViewModel(private val dao: ProductoDao) : ViewModel() {
             uiState = "No se puede eliminar este producto porque está asociado a ventas."
         } catch (e: Exception) {
             uiState = "Error al eliminar el producto"
+        }
+    }
+
+    fun buscarProductoPorId(id: Int) = viewModelScope.launch {
+        val producto = dao.obtenerProductoPorId(id)
+        if (producto != null) {
+            state = state.copy(productoSeleccionado = producto)
+        } else {
+            uiState = "Producto no encontrado."
+        }
+    }
+
+    fun procesarCompra(itemsCarrito: List<CarritoItem>) = viewModelScope.launch {
+        try {
+            itemsCarrito.forEach { item ->
+                val producto = dao.obtenerProductoPorId(item.idProducto)
+                if (producto != null) {
+                    producto.cantidadDisponible -= item.cantidad
+                    dao.update(producto)
+                }
+            }
+            uiState = "Compra procesada exitosamente."
+        } catch (e: Exception) {
+            uiState = "Error al procesar la compra: ${e.message}"
         }
     }
 }

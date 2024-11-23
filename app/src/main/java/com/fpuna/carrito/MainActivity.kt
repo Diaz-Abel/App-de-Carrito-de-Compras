@@ -1,9 +1,12 @@
 package com.fpuna.carrito
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -35,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
+import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
@@ -44,13 +48,43 @@ import com.fpuna.carrito.viewmodel.AppViewModelFactory
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
+    // Registrar el Activity Result API para solicitar permisos
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                // Permiso concedido
+                // Puedes proceder con la operación de acceso a archivos
+            } else {
+                // Permiso denegado, maneja la situación
+            }
+        }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Verificar si ya tienes el permiso
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // Si ya tienes el permiso, puedes proceder directamente
+        } else {
+            // Solicitar el permiso usando el ActivityResult API
+            requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+
+        // Eliminar manualmente la base de datos al inicio
+        //deleteDatabase("db_carrito")
+
         // Instancia de la base de datos y daos necesarios
         val dataBase =
-            Room.databaseBuilder(this, AppDatabase::class.java, "db_carrito").build()
+            Room.databaseBuilder(this, AppDatabase::class.java, "db_carrito")
+                .fallbackToDestructiveMigration() // Este método elimina y recrea la base de datos
+                .build()
         val categoriaDao = dataBase.categoriaDao()
         val productoDao = dataBase.productoDao()
         val ventaDao = dataBase.ventaDao()
@@ -74,6 +108,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

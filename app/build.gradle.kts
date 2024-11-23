@@ -94,4 +94,11 @@ dependencies {
     implementation("androidx.room:room-ktx:2.4.2")
     ksp("androidx.room:room-compiler:2.4.2")
 
+    // API de selección de imágenes (ActivityResult API)
+    implementation("androidx.activity:activity-compose:1.7.2")
+
+    // Coil para manejo de imágenes (opcional pero recomendado)
+    implementation("io.coil-kt.coil3:coil-compose:3.0.3")
+    
+
 }

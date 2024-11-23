@@ -49,14 +49,13 @@ fun NavManager(
         composable("inicioVenta") {
             val categorias = categoriaViewModel.state.listaCategorias
             ListarVentaProductos(
-                navController,
                 productoViewModel,
                 carritoViewModel,
                 categorias
             )
         }
         composable("carrito") {
-            CarritoView(navController, carritoViewModel, ventaViewModel)
+            CarritoView(navController, carritoViewModel, productoViewModel)
         }
 
         // Nueva ruta para FinalizarOrdenView con el parámetro total
@@ -70,7 +69,8 @@ fun NavManager(
                 navController = navController,
                 ventaViewModel = ventaViewModel,
                 total = total,
-                carritoViewModel
+                carritoViewModel,
+                productoViewModel
             )
         }
 
@@ -125,17 +125,12 @@ fun NavManager(
             AgregarProductoView(navController, productoViewModel, categorias)
         }
         composable(
-            route = "editarProducto/{id}/{nombre}",
+            route = "editarProducto/{id}",
             arguments = listOf(
                 navArgument(name = "id") { type = NavType.IntType },
-                navArgument(name = "nombre") {
-                    type = NavType.StringType; defaultValue = "Sin Especificar"
-                }
             )
         ) {
             val id = it.arguments!!.getInt("id")
-            val nombre = it.arguments!!.getString("nombre")!!
-
             val producto = productoViewModel.state.listaProductos.find { it.idProducto == id }
 
             if (producto != null) {
