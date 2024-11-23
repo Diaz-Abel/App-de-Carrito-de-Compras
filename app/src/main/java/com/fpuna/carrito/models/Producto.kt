@@ -2,8 +2,8 @@ package com.fpuna.carrito.models
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
 import androidx.room.Index
+import androidx.room.PrimaryKey
 
 
 @Entity(
@@ -20,7 +20,9 @@ data class Producto(
     @PrimaryKey(autoGenerate = true) val idProducto: Int = 0,
     val nombre: String,
     val idCategoria: Int, // Referencia a la categoría
-    val precioVenta: Double
+    val precioVenta: Double,
+    val imageUri: String? = null,
+    var cantidadDisponible: Int
 )
 
 

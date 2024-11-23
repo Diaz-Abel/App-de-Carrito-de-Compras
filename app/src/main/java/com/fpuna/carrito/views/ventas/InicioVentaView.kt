@@ -40,12 +40,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.models.Cliente
 import com.fpuna.carrito.models.Producto
 import com.fpuna.carrito.models.Venta
+import com.fpuna.carrito.utils.ImagePicker
 import com.fpuna.carrito.viewmodel.CarritoViewModel
 import com.fpuna.carrito.viewmodel.ProductoViewModel
 import com.fpuna.carrito.viewmodel.VentaViewModel
@@ -54,7 +54,6 @@ import java.util.Calendar
 
 @Composable
 fun ListarVentaProductos(
-    navController: NavController,  // Agregar el NavController aquí
     productoViewModel: ProductoViewModel,
     carritoViewModel: CarritoViewModel,
     listaCategorias: List<Categoria>
@@ -113,8 +112,18 @@ fun ListarVentaProductos(
                 val cantidadInt = cantidad.toIntOrNull() // Intentar convertir a Int
                 if (cantidadInt != null && cantidadInt > 0) {
                     carritoViewModel.agregarAlCarrito(selectedProducto!!, cantidadInt)
+
+                    // Actualizar la cantidad disponible del producto
+                    selectedProducto = selectedProducto!!.copy(
+                        cantidadDisponible = selectedProducto!!.cantidadDisponible - cantidadInt
+                    )
+                    // Actualiza el estado global del producto en ProductoViewModel
+                    productoViewModel.actualizarProducto(selectedProducto!!)
+
+                    // Limpiar el modal
                     selectedProducto = null
-                    cantidad = "" // Reinicia la cantidad después de agregar
+                    // Reinicia la cantidad después de agregar
+                    cantidad = ""
                 } else {
                     alertMessage = "La cantidad debe ser un número entero válido mayor que cero."
                     showAlertDialog = true
@@ -150,34 +159,50 @@ fun ProductoItem(
             .padding(8.dp)
             .clickable { onClick() }
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) { // Estilo solo para "Producto:"
-                        append("Producto: ")
-                    }
-                    append(producto.nombre) // Sin estilo adicional
-                },
-                style = MaterialTheme.typography.bodyMedium // Estilo general para el texto
+        Row {
+            // Picker de imagen
+            ImagePicker(
+                initialImageUri = producto.imageUri,  // Solo se muestra la imagen
+                isListMode = true            // Modo de solo mostrar
             )
-            Text(
-                text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) { // Estilo solo para "Precio:"
-                        append("Precio: ")
-                    }
-                    append("${producto.precioVenta} gs") // Sin estilo adicional
-                },
-                style = MaterialTheme.typography.bodyMedium // Estilo general para el texto
-            )
-            Text(
-                text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) { // Estilo solo para "Categoría:"
-                        append("Categoría: ")
-                    }
-                    append(nombreCategoria) // Sin estilo adicional
-                },
-                style = MaterialTheme.typography.bodyMedium // Estilo general para el texto
-            )
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) { // Estilo solo para "Producto:"
+                            append("Producto: ")
+                        }
+                        append(producto.nombre) // Sin estilo adicional
+                    },
+                    style = MaterialTheme.typography.bodyMedium // Estilo general para el texto
+                )
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) { // Estilo solo para "Precio:"
+                            append("Precio: ")
+                        }
+                        append("${producto.precioVenta} gs") // Sin estilo adicional
+                    },
+                    style = MaterialTheme.typography.bodyMedium // Estilo general para el texto
+                )
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) { // Estilo solo para "Categoría:"
+                            append("Cantidad disponible: ")
+                        }
+                        append("${producto.cantidadDisponible}") // Sin estilo adicional
+                    },
+                    style = MaterialTheme.typography.bodyMedium // Estilo general para el texto
+                )
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) { // Estilo solo para "Categoría:"
+                            append("Categoría: ")
+                        }
+                        append(nombreCategoria) // Sin estilo adicional
+                    },
+                    style = MaterialTheme.typography.bodyMedium // Estilo general para el texto
+                )
+            }
         }
 
     }
@@ -187,14 +212,27 @@ fun ProductoItem(
 fun ModalCantidadProducto(
     producto: Producto,
     cantidad: String,
-    onCantidadChange: (Int) -> Unit,
+    onCantidadChange: (String) -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            TextButton(onClick = {
+                val cantidadInt = cantidad.toIntOrNull()
+                if (cantidadInt == null || cantidadInt <= 0) {
+                    errorMessage = "La cantidad debe ser un número entero válido mayor que 0."
+                } else if (cantidadInt > producto.cantidadDisponible) {
+                    errorMessage =
+                        "La cantidad ingresada no puede ser mayor a la cantidad disponible (${producto.cantidadDisponible})."
+                } else {
+                    errorMessage = null // Sin errores
+                    onConfirm()
+                }
+            }) {
                 Text("Agregar al carrito")
             }
         },
@@ -206,21 +244,28 @@ fun ModalCantidadProducto(
         title = { Text("Agregar ${producto.nombre} al carrito") },
         text = {
             Column {
-                Text("Cantidad:")
+                Text("Cantidad disponible: ${producto.cantidadDisponible}")
+                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = cantidad,
-                    onValueChange = {
-                        val newValue = it.toIntOrNull()
-                        if (newValue != null && newValue > 0) {
-                            onCantidadChange(newValue)
-                        }
-                    },
+                    onValueChange = onCantidadChange,
+                    label = { Text("Cantidad") },
+                    isError = errorMessage != null,
                     modifier = Modifier.fillMaxWidth()
                 )
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
         }
     )
 }
+
 
 @Composable
 fun ConsultaVentasView(

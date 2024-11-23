@@ -32,4 +32,7 @@ interface ProductoDao {
     // Nueva función para obtener un producto por idProducto
     @Query("SELECT * FROM productos WHERE idProducto = :idProducto LIMIT 1")
     suspend fun obtenerProductoPorId(idProducto: Int): Producto?
+
+    @Query("SELECT * FROM productos WHERE idProducto = :id LIMIT 1")
+    suspend fun getProductoById(id: Int): Producto
 }

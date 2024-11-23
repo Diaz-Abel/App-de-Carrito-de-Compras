@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,8 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.models.Producto
+import com.fpuna.carrito.utils.ImagePicker
 import com.fpuna.carrito.viewmodel.ProductoViewModel
-import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun ListarProductosView(
@@ -134,45 +135,57 @@ fun ProductoItem(
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable {
-                navController.navigate("editarProducto/${producto.idProducto}/${producto.nombre}") // Solo el ID
+                navController.navigate("editarProducto/${producto.idProducto}") // Solo el ID
             }
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(text = producto.nombre, style = MaterialTheme.typography.titleMedium)
-            Text(
-                text = "Precio: ${producto.precioVenta} gs",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Categoría: ${categoria?.name ?: "Sin categoría"}",
-                style = MaterialTheme.typography.bodyMedium
+        Row {
+            // Picker de imagen
+            ImagePicker(
+                initialImageUri = producto.imageUri,  // Solo se muestra la imagen
+                isListMode = true            // Modo de solo mostrar
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Column(
+                modifier = Modifier.padding(start = 8.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(text = producto.nombre, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = "Precio: ${producto.precioVenta} gs",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "Cantidad disponible: ${producto.cantidadDisponible}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "Categoría: ${categoria?.name ?: "Sin categoría"}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
 
-            Row {
-                // Botón de Editar
-                Button(
-                    onClick = {
-                        navController.navigate("editarProducto/${producto.idProducto}/${producto.nombre}")
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Editar")
-                }
+                Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Row {
+                    // Botón de Editar
+                    Button(
+                        onClick = {
+                            navController.navigate("editarProducto/${producto.idProducto}")
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Editar")
+                    }
 
-                // Botón de Eliminar
-                Button(
-                    onClick = { showConfirmDialog = true },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Eliminar")
+                    Spacer(modifier = Modifier.width(2.dp))
+
+                    // Botón de Eliminar
+                    Button(
+                        onClick = { showConfirmDialog = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Eliminar")
+                    }
                 }
             }
         }

@@ -16,6 +16,10 @@ class CarritoViewModel(private val carritoDao: CarritoDao) : ViewModel() {
     private val _itemsCarrito = MutableStateFlow<List<CarritoItem>>(emptyList())
     val itemsCarrito: StateFlow<List<CarritoItem>> = _itemsCarrito.asStateFlow()
 
+    // Estado para manejar si se confirmó el vaciado
+    var confirmadoVaciar: Boolean = false
+        private set
+
     init {
         viewModelScope.launch {
             carritoDao.getItemsFlow().collect { items ->
@@ -75,6 +79,32 @@ class CarritoViewModel(private val carritoDao: CarritoDao) : ViewModel() {
             onResult(items)
         }
     }
+    fun setConfirmadoVaciar(value: Boolean) {
+        confirmadoVaciar = value
+    }
+
+    fun vaciarCarritoYActualizarProductos(
+        productoViewModel: ProductoViewModel
+    ) {
+        viewModelScope.launch {
+            // Solo vaciar y actualizar cuando se confirme
+            if (confirmadoVaciar) {
+                _itemsCarrito.value.forEach() { item ->
+                    val producto = obtenerProductoPorId(item.idProducto)  // Llamada suspendida
+                    producto?.let {
+                        val cantidadComprada = item.cantidad
+                        it.cantidadDisponible += cantidadComprada
+                        productoViewModel.actualizarProducto(it)
+
+                    }
+                    // Después de procesar los productos, vaciamos el carrito
+                    vaciarCarrito()  // Vaciar el carrito
+                    setConfirmadoVaciar(false) // Resetear el estado
+                }
+            }
+        }
+    }
+
 
     // Método para actualizar la cantidad de un producto en el carrito
     fun actualizarCantidadProducto(idCarritoItem: Long, nuevaCantidad: Int) {

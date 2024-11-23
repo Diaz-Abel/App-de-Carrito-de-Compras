@@ -1,21 +1,10 @@
 package com.fpuna.carrito.views.producto
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,11 +13,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.models.Producto
+import com.fpuna.carrito.utils.AlertMessageDialog
+import com.fpuna.carrito.utils.CategoriaSelectionDialog
+import com.fpuna.carrito.utils.CustomButton
+import com.fpuna.carrito.utils.CustomOutlinedTextField
+import com.fpuna.carrito.utils.ImagePicker
+import com.fpuna.carrito.utils.validarCamposObligatorios
+import com.fpuna.carrito.utils.validarValoresNumericos
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
 import com.fpuna.carrito.viewmodel.ProductoViewModel
 
@@ -39,10 +35,23 @@ fun EditarProductoView(
     categoriaViewModel: CategoriaViewModel,
     producto: Producto
 ) {
+    val context = LocalContext.current  // Obtén el contexto usando LocalContext
+
     var nombre by remember { mutableStateOf(producto.nombre) }
     var precioVenta by remember { mutableStateOf(producto.precioVenta.toString()) }
     var selectedCategoria by remember { mutableStateOf<Categoria?>(null) }
+    var imageUri by remember {
+        mutableStateOf(
+            producto.imageUri ?: ""
+        )
+    }  // Estado para la URI de la imagen
+
+
+    var cantidadDisponible by remember { mutableStateOf(producto.cantidadDisponible.toString()) }
+
     var showDialog by remember { mutableStateOf(false) }
+    var showAlertDialog by remember { mutableStateOf(false) }
+    var alertMessage by remember { mutableStateOf("") }
 
     // Obtener la lista de categorías y seleccionar la actual
     val listaCategorias = categoriaViewModel.state.listaCategorias
@@ -52,8 +61,7 @@ fun EditarProductoView(
         selectedCategoria = listaCategorias.find { it.id == producto.idCategoria }
     }
 
-    Scaffold()
-    { paddingValues ->
+    Scaffold { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -61,99 +69,88 @@ fun EditarProductoView(
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            OutlinedTextField(
+            CustomOutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
-                label = { Text(text = "Nombre del Producto") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 30.dp)
-                    .padding(bottom = 15.dp)
+                label = "Nombre del Producto"
             )
 
-            OutlinedTextField(
+            CustomOutlinedTextField(
                 value = precioVenta,
                 onValueChange = { precioVenta = it },
-                label = { Text(text = "Precio de Venta") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 30.dp)
-                    .padding(bottom = 15.dp)
+                label = "Precio de Venta"
             )
 
             // Botón para seleccionar categoría
-            Button(
-                onClick = { showDialog = true },
-                modifier = Modifier
-                    .padding(horizontal = 30.dp)
-                    .fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = Color.White
-                )
-            ) {
-                Text(text = if (selectedCategoria != null) "Categoría: ${selectedCategoria!!.name}" else "Selecciona una categoría")
-            }
+            CustomButton(
+                text = if (selectedCategoria != null) "Categoría: ${selectedCategoria!!.name}" else "Selecciona una categoría",
+                onClick = { showDialog = true }
+            )
 
             if (showDialog) {
-                AlertDialog(
-                    onDismissRequest = { showDialog = false },
-                    title = { Text("Seleccionar Categoría") },
-                    text = {
-                        Column {
-                            listaCategorias.forEach { categoria ->
-                                Text(
-                                    text = categoria.name,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            selectedCategoria =
-                                                categoria // Actualiza la categoría seleccionada
-                                            showDialog = false // Cierra el diálogo
-                                        }
-                                        .padding(8.dp)
-                                )
-                            }
-                        }
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { showDialog = false }) {
-                            Text("Cerrar")
-                        }
-                    }
+                CategoriaSelectionDialog(
+                    categorias = listaCategorias,
+                    onCategoriaSelected = { selectedCategoria = it },
+                    onDismiss = { showDialog = false }
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-            Row {
-                // Botón de Cancelar
-                Button(
+            // Diálogo de advertencia
+            if (showAlertDialog) {
+                AlertMessageDialog(
+                    message = alertMessage,
+                    onDismiss = { showAlertDialog = false }
+                )
+            }
+
+            // Picker de imagen
+            ImagePicker(
+                initialImageUri = imageUri,
+                onImageSelected = { newUri ->
+                    imageUri = newUri  // Actualiza la URI en el estado
+                },
+                isListMode = false          // Modo de agregar o editar
+            )
+
+            Row(
+                modifier = Modifier.padding(top = 20.dp)
+            ) {
+                CustomButton(
+                    text = "Cancelar",
+                    onClick = { navController.popBackStack() }
+                )
+                CustomButton(
+                    text = "Guardar",
                     onClick = {
-                        // Cierra y vuelve a la vista anterior sin guardar cambios
-                        navController.popBackStack()
-                    }
-                ) {
-                    Text(text = "Cancelar")
-                }
-                Button(
-                    onClick = {
-                        if (nombre.isNotEmpty() && precioVenta.isNotEmpty() && selectedCategoria != null) {
+                        // Validaciones
+                        val mensajeError = validarCamposObligatorios(
+                            nombre,
+                            precioVenta,
+                            cantidadDisponible,
+                            selectedCategoria
+                        )
+                            ?: validarValoresNumericos(precioVenta, cantidadDisponible)
+
+                        if (mensajeError != null) {
+                            alertMessage = mensajeError
+                            showAlertDialog = true
+                        } else {
+                            // Crear y agregar el producto
                             val productoActualizado = Producto(
                                 idProducto = producto.idProducto,
                                 nombre = nombre,
-                                precioVenta = precioVenta.toDoubleOrNull() ?: 0.0,
-                                idCategoria = selectedCategoria!!.id
+                                precioVenta = precioVenta.toDouble(),
+                                idCategoria = selectedCategoria!!.id,
+                                imageUri = imageUri,  // Asegúrate de pasar el valor actualizado de imageUri
+                                cantidadDisponible = cantidadDisponible.toInt()
                             )
                             productoViewModel.actualizarProducto(productoActualizado)
                             navController.popBackStack()
                         }
-                    },
-                    modifier = Modifier.padding(horizontal = 30.dp)
-                ) {
-                    Text(text = "Guardar")
-                }
+                    }
+                )
             }
-
         }
     }
 }
+

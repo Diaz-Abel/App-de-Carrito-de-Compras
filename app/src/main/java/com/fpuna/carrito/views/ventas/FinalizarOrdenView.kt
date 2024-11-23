@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import com.fpuna.carrito.models.Cliente
 import com.fpuna.carrito.models.Venta
 import com.fpuna.carrito.viewmodel.CarritoViewModel
+import com.fpuna.carrito.viewmodel.ProductoViewModel
 import com.fpuna.carrito.viewmodel.VentaViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -33,7 +34,8 @@ fun FinalizarOrdenView(
     navController: NavController,
     ventaViewModel: VentaViewModel = viewModel(),
     total: Double,
-    carritoViewModel: CarritoViewModel
+    carritoViewModel: CarritoViewModel,
+    productoViewModel: ProductoViewModel
 ) {
     var itemsCarrito = carritoViewModel.itemsCarrito.collectAsState(initial = emptyList()).value
     var clienteCedula by remember { mutableStateOf("") }
@@ -133,7 +135,9 @@ fun FinalizarOrdenView(
                     )
                     // vacia el carrito
                     carritoViewModel.vaciarCarrito()
-                    showPurchaseConfirmation = true // Mostrar el mensaje de confirmación de compra
+
+                    // Mostrar el mensaje de confirmación de compra
+                    showPurchaseConfirmation = true
                 },
                 modifier = Modifier
                     .fillMaxWidth()
