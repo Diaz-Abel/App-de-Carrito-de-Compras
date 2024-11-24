@@ -55,6 +55,12 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.room.compiler) // KSP para el procesamiento de anotaciones de Room
     implementation(libs.androidx.room.ktx)
+    implementation("io.coil-kt:coil-compose:2.4.0")// para el selector de imagen
+    implementation("androidx.compose.ui:ui:1.5.1")
+    implementation("androidx.navigation:navigation-compose:2.7.3")
+    implementation("androidx.compose.material3:material3:1.0.1")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
 
     // Navegación y Benchmark
     implementation(libs.androidx.navigation.compose)
@@ -96,7 +102,8 @@ dependencies {
 
     // API de selección de imágenes (ActivityResult API)
     implementation("androidx.activity:activity-compose:1.7.2")
-
+    implementation("androidx.compose.material3:material3:1.1.0")
+    implementation("androidx.compose.foundation:foundation:1.5.1")
     // Coil para manejo de imágenes (opcional pero recomendado)
     implementation("io.coil-kt.coil3:coil-compose:3.0.3")
     
