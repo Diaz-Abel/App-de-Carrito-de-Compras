@@ -1,5 +1,6 @@
 package com.fpuna.carrito.views.categoria
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,9 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil3.compose.rememberAsyncImagePainter
+import com.fpuna.carrito.R
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
-import androidx.compose.runtime.LaunchedEffect
+
 
 @Composable
 fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewModel) {
@@ -130,34 +135,47 @@ fun CategoriaItem(
                 navController.navigate("editarCategoria/${categoria.id}/${categoria.name}")
             }
     ) {
-        Column(
+        Row(
             modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.Start
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = categoria.name, style = MaterialTheme.typography.titleMedium)
+            // Mostrar la imagen asociada a la categoría o un placeholder si no hay imagen
+            Image(
+                painter = rememberAsyncImagePainter(
+                    model = categoria.icono ?: R.drawable.placeholder_image,
+                ),
+                contentDescription = "Ícono de la categoría",
+                modifier = Modifier
+                    .size(40.dp)
+                    .padding(end = 16.dp)
+            )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Column(horizontalAlignment = Alignment.Start) {
+                Text(text = categoria.name, style = MaterialTheme.typography.titleMedium)
 
-            Row {
-                // Botón de Editar
-                Button(
-                    onClick = {
-                        navController.navigate("editarCategoria/${categoria.id}/${categoria.name}")
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Editar")
-                }
+                Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Row {
+                    // Botón de Editar
+                    Button(
+                        onClick = {
+                            navController.navigate("editarCategoria/${categoria.id}/${categoria.name}")
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Editar")
+                    }
 
-                // Botón de Eliminar
-                Button(
-                    onClick = { showConfirmDialog = true },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Eliminar")
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    // Botón de Eliminar
+                    Button(
+                        onClick = { showConfirmDialog = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Eliminar")
+                    }
                 }
             }
         }
@@ -179,3 +197,4 @@ fun CategoriaItem(
         )
     }
 }
+

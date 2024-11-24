@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
         }
 
         // Eliminar manualmente la base de datos al inicio
-        //deleteDatabase("db_carrito")
+        deleteDatabase("db_carrito")
 
         // Instancia de la base de datos y daos necesarios
         val dataBase =

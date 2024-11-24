@@ -1,10 +1,14 @@
 package com.fpuna.carrito.views.categoria
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -18,15 +22,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil3.compose.rememberAsyncImagePainter
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Color
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
+
 
 @Composable
 fun AgregarCategoriaView(navController: NavController, viewModel: CategoriaViewModel) {
@@ -41,7 +40,16 @@ fun ContentAgregarView(
     navController: NavController,
     viewModel: CategoriaViewModel
 ) {
-    var nombre by remember { mutableStateOf(value = "") }
+    var nombre by remember { mutableStateOf("") }
+    var iconoUri by remember { mutableStateOf<String?>(null) } // Guarda la URI de la imagen
+
+    // ActivityResult para seleccionar una imagen
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        iconoUri = uri?.toString()
+    }
+
     Column(
         modifier = Modifier
             .padding(it)
@@ -52,22 +60,43 @@ fun ContentAgregarView(
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
-            label = { Text(text = "Categoria") },
+            label = { Text("Nombre de la Categoría") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 30.dp)
                 .padding(bottom = 15.dp)
         )
+
+        // Botón para seleccionar una imagen
+        Button(
+            onClick = { launcher.launch("image/*") }, // Filtra solo imágenes
+            modifier = Modifier.padding(bottom = 15.dp)
+        ) {
+            Text("Seleccionar Imagen")
+        }
+
+        // Muestra una vista previa de la imagen seleccionada
+        if (iconoUri != null) {
+            Image(
+                painter = rememberAsyncImagePainter(model = iconoUri),
+                contentDescription = "Vista previa del ícono",
+                modifier = Modifier
+                    .size(100.dp)
+                    .padding(bottom = 15.dp)
+            )
+        }
+
         Button(
             onClick = {
-                val categoria = Categoria(name = nombre)
+                val categoria = Categoria(
+                    name = nombre,
+                    icono = iconoUri // Guarda la URI seleccionada
+                )
                 viewModel.agregarCategoria(categoria)
-                // vuelve a la vista anterior
                 navController.popBackStack()
             }
         ) {
-            Text(text = "Agregar Nueva Categoria ")
+            Text(text = "Agregar Nueva Categoría")
         }
     }
-
 }

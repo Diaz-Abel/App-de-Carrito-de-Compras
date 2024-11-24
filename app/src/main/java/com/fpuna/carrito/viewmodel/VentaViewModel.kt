@@ -117,7 +117,13 @@ class VentaViewModel(
     }
 
     // Finalizar la orden
-    fun finalizarOrden(cliente: Cliente, venta: Venta, itemsCarrito: List<CarritoItem>) {
+    fun finalizarOrden(
+        cliente: Cliente,
+        venta: Venta,
+        itemsCarrito: List<CarritoItem>,
+        tipoOperacion: String, // Agregamos el tipo de operación
+        direccionEntrega: String? = null // Dirección opcional para delivery
+    ) {
         viewModelScope.launch {
             // Paso 1: Verificar si el cliente ya existe, si no, registrarlo
             val existingCliente = clienteDao.getClienteByCedula(cliente.cedula)
@@ -127,8 +133,12 @@ class VentaViewModel(
                 existingCliente.idCliente
             }
 
-            // Paso 2: Registrar la venta
-            val nuevaVenta = venta.copy(idCliente = idCliente)
+            // Paso 2: Registrar la venta, incluyendo el tipo de operación y dirección
+            val nuevaVenta = venta.copy(
+                idCliente = idCliente,
+                tipoOperacion = tipoOperacion,
+                direccionEntrega = if (tipoOperacion == "delivery") direccionEntrega else null // Solo guarda la dirección si es delivery
+            )
             val idVenta = ventaDao.insertVenta(nuevaVenta)
 
             // Paso 3: Registrar los detalles de cada producto en el carrito
@@ -146,6 +156,7 @@ class VentaViewModel(
             }
         }
     }
+
 
     // Obtener cliente por ID
     suspend fun obtenerClientePorId(clienteId: Long): Cliente {
