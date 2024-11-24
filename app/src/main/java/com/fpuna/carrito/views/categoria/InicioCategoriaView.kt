@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -37,6 +38,11 @@ import androidx.navigation.NavController
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
 import androidx.compose.runtime.LaunchedEffect
+import coil.compose.rememberAsyncImagePainter
+import androidx.compose.foundation.Image
+
+
+
 
 @Composable
 fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewModel) {
@@ -122,6 +128,7 @@ fun CategoriaItem(
     viewModel: CategoriaViewModel
 ) {
     var showConfirmDialog by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -134,7 +141,23 @@ fun CategoriaItem(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(text = categoria.name, style = MaterialTheme.typography.titleMedium)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Mostrar el ícono si existe
+                if (categoria.iconUri != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(model = categoria.iconUri),
+                        contentDescription = "Ícono de categoría",
+                        modifier = Modifier
+                            .size(48.dp)
+                            .padding(end = 8.dp) // Espaciado entre el ícono y el texto
+                    )
+                }
+
+                Text(
+                    text = categoria.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -162,6 +185,7 @@ fun CategoriaItem(
             }
         }
     }
+
     if (showConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
@@ -179,3 +203,4 @@ fun CategoriaItem(
         )
     }
 }
+
