@@ -37,6 +37,7 @@ import androidx.navigation.NavController
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
 import androidx.compose.runtime.LaunchedEffect
+import coil.compose.rememberAsyncImagePainter // Para mostrar imágenes usando Coil
 
 @Composable
 fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewModel) {
@@ -115,6 +116,7 @@ fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewMo
 
     }
 }
+
 @Composable
 fun CategoriaItem(
     categoria: Categoria,
@@ -134,7 +136,22 @@ fun CategoriaItem(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(text = categoria.name, style = MaterialTheme.typography.titleMedium)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Mostrar el ícono de la categoría si existe
+                if (categoria.iconUri != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(model = categoria.iconUri),
+                        contentDescription = "Ícono de categoría",
+                        modifier = Modifier.size(48.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+
+                Text(text = categoria.name, style = MaterialTheme.typography.titleMedium)
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 

@@ -30,18 +30,21 @@ import androidx.compose.material3.TextButton
 
 @Composable
 fun AgregarCategoriaView(navController: NavController, viewModel: CategoriaViewModel) {
-    Scaffold() {
-        ContentAgregarView(it, navController, viewModel)
+    Scaffold {
+        ContentAgregarCategoriaView(it, navController, viewModel)
     }
 }
 
 @Composable
-fun ContentAgregarView(
+fun ContentAgregarCategoriaView(
     it: PaddingValues,
     navController: NavController,
     viewModel: CategoriaViewModel
 ) {
-    var nombre by remember { mutableStateOf(value = "") }
+    var nombre by remember { mutableStateOf("") }
+    var iconUri by remember { mutableStateOf<String?>(null) }
+    var showImagePicker by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .padding(it)
@@ -49,25 +52,56 @@ fun ContentAgregarView(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Campo para el nombre de la categoría
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
-            label = { Text(text = "Categoria") },
+            label = { Text(text = "Nombre de la Categoría") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 30.dp)
                 .padding(bottom = 15.dp)
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botón para seleccionar un ícono
+        Button(onClick = { showImagePicker = true }) {
+            Text("Seleccionar Ícono")
+        }
+
+        // Muestra el ícono seleccionado
+        if (iconUri != null) {
+            Image(
+                painter = rememberAsyncImagePainter(model = iconUri),
+                contentDescription = "Ícono seleccionado",
+                modifier = Modifier.size(64.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botón para agregar la categoría
         Button(
             onClick = {
-                val categoria = Categoria(name = nombre)
+                val categoria = Categoria(name = nombre, iconUri = iconUri)
                 viewModel.agregarCategoria(categoria)
-                // vuelve a la vista anterior
                 navController.popBackStack()
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Agregar Nueva Categoria ")
+            Text("Agregar Categoría")
+        }
+
+        // ImagePicker para seleccionar el ícono
+        if (showImagePicker) {
+            ImagePicker(
+                onImageSelected = { uri ->
+                    iconUri = uri
+                    showImagePicker = false
+                },
+                onDismiss = { showImagePicker = false }
+            )
         }
     }
-
 }

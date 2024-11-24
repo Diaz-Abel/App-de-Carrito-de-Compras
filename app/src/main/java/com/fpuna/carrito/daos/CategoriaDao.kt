@@ -19,7 +19,7 @@ interface CategoriaDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(categoria: Categoria)
-
+    
     @Update
     suspend fun update(categoria: Categoria)
 

@@ -7,7 +7,7 @@ import com.fpuna.carrito.models.*
 
 @Database(
     entities = [Categoria::class, Producto::class, Venta::class, Cliente::class, DetalleVenta::class, CarritoItem::class],
-    version = 1,
+    version = 2, // Cambia la versión
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -17,3 +17,4 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun clienteDao(): ClienteDao
     abstract fun carritoDao(): CarritoDao
 }
+
