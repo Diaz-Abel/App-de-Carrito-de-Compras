@@ -53,7 +53,7 @@ android {
 dependencies {
     // Room
     implementation(libs.androidx.room.runtime)
-    ksp(libs.room.compiler) // KSP para el procesamiento de anotaciones de Room
+    ksp(libs.room.compiler)
     implementation(libs.androidx.room.ktx)
 
     // Navegación y Benchmark
@@ -63,42 +63,33 @@ dependencies {
     // Core y Lifecycle
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.4.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
 
-    // Compose
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation("androidx.compose.material3:material3:1.0.0")
-
-    // Dependencia para iconos extendidos de Material
-    implementation("androidx.compose.material:material-icons-extended:1.5.1") // Versión basada en el BOM
+    // Compose (usando Compose BOM para versiones consistentes)
+    implementation(platform("androidx.compose:compose-bom:2024.01.00"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.runtime:runtime-livedata")
+    debugImplementation("androidx.compose.ui:ui-tooling")
 
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.01.00"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    // LiveData para Compose
-    implementation("androidx.compose.runtime:runtime-livedata:1.1.0")
-    implementation("androidx.room:room-runtime:2.4.2")
-    implementation("androidx.room:room-ktx:2.4.2")
-    ksp("androidx.room:room-compiler:2.4.2")
-
-    // API de selección de imágenes (ActivityResult API)
+    // API de selección de imágenes
     implementation("androidx.activity:activity-compose:1.7.2")
 
-    // Coil para manejo de imágenes (opcional pero recomendado)
-    implementation("io.coil-kt.coil3:coil-compose:3.0.3")
-    
+    // Coil para manejo de imágenes
+    implementation("io.coil-kt:coil-compose:2.2.2")
 
+    // OpenStreetMap (OSMDroid y osmbonuspack)
+    implementation("org.osmdroid:osmdroid-android:6.1.12")
+    implementation("org.osmdroid:osmbonuspack:6.9.0")
 }

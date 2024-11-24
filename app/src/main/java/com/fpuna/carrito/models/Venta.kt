@@ -21,5 +21,8 @@ data class Venta(
     @PrimaryKey(autoGenerate = true) val idVenta: Long = 0,
     val fecha: String,
     val idCliente: Long, // Cambiado a Long para coincidir con Cliente
-    val total: Double
+    val total: Double,
+    val tipoOperacion: String, // "pickup" o "delivery"
+    val direccionEntrega: String? = null // Solo para delivery
+
 )

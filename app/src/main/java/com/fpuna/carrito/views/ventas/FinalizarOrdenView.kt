@@ -28,6 +28,11 @@ import com.fpuna.carrito.viewmodel.VentaViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+
 
 @Composable
 fun FinalizarOrdenView(
@@ -37,7 +42,7 @@ fun FinalizarOrdenView(
     carritoViewModel: CarritoViewModel,
     productoViewModel: ProductoViewModel
 ) {
-    var itemsCarrito = carritoViewModel.itemsCarrito.collectAsState(initial = emptyList()).value
+    val itemsCarrito = carritoViewModel.itemsCarrito.collectAsState(initial = emptyList()).value
     var clienteCedula by remember { mutableStateOf("") }
     var clienteNombre by remember { mutableStateOf("") }
     var clienteApellido by remember { mutableStateOf("") }
@@ -45,7 +50,9 @@ fun FinalizarOrdenView(
     var mostrarCamposCliente by remember { mutableStateOf(false) }
     var showAlertDialog by remember { mutableStateOf(false) }
     var alertMessage by remember { mutableStateOf("") }
-    var showPurchaseConfirmation by remember { mutableStateOf(false) } // Nuevo estado para el diálogo de confirmación de compra
+    var showPurchaseConfirmation by remember { mutableStateOf(false) }
+    var tipoOperacion by remember { mutableStateOf("pickup") } // "pickup" o "delivery"
+    var direccionEntrega by remember { mutableStateOf("") } // Dirección de entrega
 
     Column(
         modifier = Modifier
@@ -93,7 +100,6 @@ fun FinalizarOrdenView(
             Text("Verificar Cliente")
         }
 
-        // Muestra los campos de nombre, apellido y el botón de confirmar solo después de verificar la cédula
         if (mostrarCamposCliente) {
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
@@ -101,7 +107,7 @@ fun FinalizarOrdenView(
                 onValueChange = { clienteNombre = it },
                 label = { Text("Nombre") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !clienteExistente // Solo habilitado si el cliente no existe
+                enabled = !clienteExistente
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -110,8 +116,57 @@ fun FinalizarOrdenView(
                 onValueChange = { clienteApellido = it },
                 label = { Text("Apellido") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !clienteExistente // Solo habilitado si el cliente no existe
+                enabled = !clienteExistente
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Selección de tipo de operación
+            Text("Seleccione el tipo de operación", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row {
+                Button(
+                    onClick = { tipoOperacion = "pickup" },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (tipoOperacion == "pickup") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    Text("Pickup")
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Button(
+                    onClick = { tipoOperacion = "delivery" },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (tipoOperacion == "delivery") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    Text("Delivery")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Campo de texto para dirección, si se selecciona "delivery"
+            if (tipoOperacion == "delivery") {
+                Button(
+                    onClick = {
+                        navController.navigate("seleccionarUbicacion") // Navega al mapa
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Seleccionar ubicación en el mapa")
+                }
+
+                TextField(
+                    value = direccionEntrega,
+                    onValueChange = { direccionEntrega = it },
+                    label = { Text("Dirección de entrega") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -126,17 +181,22 @@ fun FinalizarOrdenView(
                         "yyyy-MM-dd",
                         Locale.getDefault()
                     ).format(Calendar.getInstance().time)
-                    val venta = Venta(fecha = fechaCompra, idCliente = 0, total = total)
+                    val venta = Venta(
+                        fecha = fechaCompra,
+                        idCliente = 0,
+                        total = total,
+                        tipoOperacion = tipoOperacion,
+                        direccionEntrega = if (tipoOperacion == "delivery") direccionEntrega else null
+                    )
 
                     ventaViewModel.finalizarOrden(
                         cliente = cliente,
                         venta = venta,
-                        itemsCarrito = itemsCarrito
+                        itemsCarrito = itemsCarrito,
+                        tipoOperacion = tipoOperacion,
+                        direccionEntrega = if (tipoOperacion == "delivery") direccionEntrega else null
                     )
-                    // vacia el carrito
                     carritoViewModel.vaciarCarrito()
-
-                    // Mostrar el mensaje de confirmación de compra
                     showPurchaseConfirmation = true
                 },
                 modifier = Modifier
@@ -147,7 +207,6 @@ fun FinalizarOrdenView(
             }
         }
 
-        // Diálogo de advertencia
         if (showAlertDialog) {
             AlertDialog(
                 onDismissRequest = { showAlertDialog = false },
@@ -161,7 +220,6 @@ fun FinalizarOrdenView(
             )
         }
 
-        // Diálogo de confirmación de compra
         if (showPurchaseConfirmation) {
             AlertDialog(
                 onDismissRequest = {
@@ -173,7 +231,7 @@ fun FinalizarOrdenView(
                 confirmButton = {
                     Button(onClick = {
                         showPurchaseConfirmation = false
-                        navController.popBackStack() // Regresar al inicio
+                        navController.popBackStack()
                     }) {
                         Text("Aceptar")
                     }
@@ -182,4 +240,3 @@ fun FinalizarOrdenView(
         }
     }
 }
-

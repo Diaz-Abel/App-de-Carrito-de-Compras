@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import coil3.compose.rememberAsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.fpuna.carrito.models.Categoria
 import java.io.File
 import java.io.IOException

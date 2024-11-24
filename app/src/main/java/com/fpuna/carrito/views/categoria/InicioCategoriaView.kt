@@ -37,6 +37,18 @@ import androidx.navigation.NavController
 import com.fpuna.carrito.models.Categoria
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.Image
+import coil.compose.rememberAsyncImagePainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.size // Esto es lo que faltaba
+import androidx.compose.ui.res.painterResource
+import com.fpuna.carrito.R
+
+
+
+
+
 
 @Composable
 fun InicioCategoriaView(navController: NavController, viewModel: CategoriaViewModel) {
@@ -130,34 +142,47 @@ fun CategoriaItem(
                 navController.navigate("editarCategoria/${categoria.id}/${categoria.name}")
             }
     ) {
-        Column(
+        Row(
             modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.Start
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = categoria.name, style = MaterialTheme.typography.titleMedium)
+            // Mostrar la imagen asociada a la categoría o un placeholder si no hay imagen
+            Image(
+                painter = rememberAsyncImagePainter(
+                    model = categoria.icono ?: R.drawable.placeholder_image,
+                ),
+                contentDescription = "Ícono de la categoría",
+                modifier = Modifier
+                    .size(40.dp)
+                    .padding(end = 16.dp)
+            )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Column(horizontalAlignment = Alignment.Start) {
+                Text(text = categoria.name, style = MaterialTheme.typography.titleMedium)
 
-            Row {
-                // Botón de Editar
-                Button(
-                    onClick = {
-                        navController.navigate("editarCategoria/${categoria.id}/${categoria.name}")
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Editar")
-                }
+                Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Row {
+                    // Botón de Editar
+                    Button(
+                        onClick = {
+                            navController.navigate("editarCategoria/${categoria.id}/${categoria.name}")
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Editar")
+                    }
 
-                // Botón de Eliminar
-                Button(
-                    onClick = { showConfirmDialog = true },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Eliminar")
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    // Botón de Eliminar
+                    Button(
+                        onClick = { showConfirmDialog = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Eliminar")
+                    }
                 }
             }
         }
@@ -179,3 +204,4 @@ fun CategoriaItem(
         )
     }
 }
+

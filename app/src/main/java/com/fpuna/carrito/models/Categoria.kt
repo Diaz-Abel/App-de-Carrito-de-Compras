@@ -7,7 +7,8 @@ import androidx.room.PrimaryKey
 @Entity
 data class Categoria(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0, // valor por defecto
-    val name: String
+    val id: Int = 0,
+    val name: String,
+    val icono: String? = null // Puede ser null si no se define un ícono
 )
 
