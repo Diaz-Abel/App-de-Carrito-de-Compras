@@ -74,11 +74,15 @@ fun EditarProductoView(
                 onValueChange = { nombre = it },
                 label = "Nombre del Producto"
             )
-
             CustomOutlinedTextField(
                 value = precioVenta,
                 onValueChange = { precioVenta = it },
                 label = "Precio de Venta"
+            )
+            CustomOutlinedTextField(
+                value = cantidadDisponible,
+                onValueChange = { cantidadDisponible = it },
+                label = "Cantidad"
             )
 
             // Botón para seleccionar categoría

@@ -199,15 +199,21 @@ fun FinalizarOrdenView(
                         "yyyy-MM-dd",
                         Locale.getDefault()
                     ).format(Calendar.getInstance().time)
-                    val direccionFinal = geoPoint?.let {
-                        "Lat: ${it.latitude}, Lng: ${it.longitude}"
-                    } ?: direccionEntrega
+
+                    // Usar las coordenadas seleccionadas o la dirección ingresada
+                    val direccionFinal = if (tipoOperacion == "delivery") {
+                        geoPoint?.let { "Lat: ${it.latitude}, Lng: ${it.longitude}" }
+                    } else {
+                        null // Para "pickup", no se necesita dirección
+                    }
+
                     val venta = Venta(
                         fecha = fechaCompra,
-                        idCliente = 0,
+                        idCliente = 0, // Asigna el ID del cliente correspondiente
                         total = total,
                         tipoOperacion = tipoOperacion,
-                        direccionEntrega = direccionFinal
+                        direccionEntrega = direccionFinal,
+                        direccionOpcional = direccionEntrega
                     )
 
                     ventaViewModel.finalizarOrden(
@@ -226,6 +232,7 @@ fun FinalizarOrdenView(
             ) {
                 Text("Confirmar Orden")
             }
+
         }
 
         if (showAlertDialog) {

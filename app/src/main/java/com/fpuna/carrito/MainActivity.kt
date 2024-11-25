@@ -46,44 +46,37 @@ import com.fpuna.carrito.navegation.NavManager
 import com.fpuna.carrito.ui.theme.CarritoTheme
 import com.fpuna.carrito.viewmodel.AppViewModelFactory
 import kotlinx.coroutines.launch
+import org.osmdroid.config.Configuration
 
 class MainActivity : ComponentActivity() {
 
-    // Registrar el Activity Result API para solicitar permisos
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                // Permiso concedido
-                // Puedes proceder con la operación de acceso a archivos
-            } else {
-                // Permiso denegado, maneja la situación
+    // Registrar el Activity Result API para solicitar permisos múltiples
+    private val requestMultiplePermissionsLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            permissions.entries.forEach { (permission, isGranted) ->
+                if (!isGranted) {
+                    // Manejar permisos denegados si es necesario
+                }
             }
         }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Verificar si ya tienes el permiso
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            // Si ya tienes el permiso, puedes proceder directamente
-        } else {
-            // Solicitar el permiso usando el ActivityResult API
-            requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
+        // Configuración de OSMDroid
+        Configuration.getInstance().load(this, getSharedPreferences("osmdroid", MODE_PRIVATE))
+        Configuration.getInstance().userAgentValue = "com.fpuna.carrito/1.0"
 
-        // Eliminar manualmente la base de datos al inicio
+        // Solicitar permisos necesarios
+        requestPermissionsIfNeeded()
+
         //deleteDatabase("db_carrito")
 
-        // Instancia de la base de datos y daos necesarios
+        // Configurar la base de datos
         val dataBase =
             Room.databaseBuilder(this, AppDatabase::class.java, "db_carrito")
-                .fallbackToDestructiveMigration() // Este método elimina y recrea la base de datos
+                .fallbackToDestructiveMigration()
                 .build()
         val categoriaDao = dataBase.categoriaDao()
         val productoDao = dataBase.productoDao()
@@ -91,11 +84,10 @@ class MainActivity : ComponentActivity() {
         val clienteDao = dataBase.clienteDao()
         val carritoDao = dataBase.carritoDao()
 
-        // Crea el ViewModelFactory con daos necesarios
         val viewModelFactory =
             AppViewModelFactory(categoriaDao, productoDao, ventaDao, clienteDao, carritoDao)
 
-        // sirve para configurar el contenido de la pantalla
+        // Configurar el contenido de la pantalla
         setContent {
             CarritoTheme {
                 Surface(
@@ -103,12 +95,26 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     MenuLateral(viewModelFactory)
-
                 }
             }
         }
     }
 
+    private fun requestPermissionsIfNeeded() {
+        val permissions = listOf(
+            Manifest.permission.INTERNET,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+        val notGrantedPermissions = permissions.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+        if (notGrantedPermissions.isNotEmpty()) {
+            requestMultiplePermissionsLauncher.launch(notGrantedPermissions.toTypedArray())
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -117,32 +123,27 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     val navController = rememberNavController()
-    // Estado para el título
     var titulo by remember { mutableStateOf("Inicio") }
 
-    // Observa la ruta actual del NavController
     val backStackEntry = navController.currentBackStackEntryAsState()
 
-    // Cambia el título basado en la ruta actual
     LaunchedEffect(backStackEntry.value?.destination?.route) {
-        when (backStackEntry.value?.destination?.route) {
-            "carrito" -> titulo = "Carrito"
-            "inicioVenta" -> titulo = "Inicio"
-            "inicioCategoria" -> titulo = "Categorías"
-            "agregarCategoria" -> titulo = "Agregar categoría"
-            "editarCategoria/{id}/{name}" -> titulo = "Editar categoría"
-            "inicioProducto" -> titulo = "Productos"
-            "agregarProducto" -> titulo = "Agregar producto"
-            "editarProducto/{id}/{nombre}" -> titulo = "Editar producto"
-            "inicioCliente" -> titulo = "Clientes"
-            "agregarCliente" -> titulo = "Agregar cliente"
-            "editarCliente/{cedula}" -> titulo = "Editar cliente"
-            "consultaVentas" -> titulo = "Consultar Ventas"
-            // Agrega más rutas según sea necesario
-            else -> titulo = "Inicio" // Valor por defecto o el que desees
+        titulo = when (backStackEntry.value?.destination?.route) {
+            "carrito" -> "Carrito"
+            "inicioVenta" -> "Inicio"
+            "inicioCategoria" -> "Categorías"
+            "agregarCategoria" -> "Agregar categoría"
+            "editarCategoria/{id}/{name}" -> "Editar categoría"
+            "inicioProducto" -> "Productos"
+            "agregarProducto" -> "Agregar producto"
+            "editarProducto/{id}/{nombre}" -> "Editar producto"
+            "inicioCliente" -> "Clientes"
+            "agregarCliente" -> "Agregar cliente"
+            "editarCliente/{cedula}" -> "Editar cliente"
+            "consultaVentas" -> "Consultar Ventas"
+            else -> "Inicio"
         }
     }
-
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -157,8 +158,6 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     }
                 )
                 HorizontalDivider()
-
-                // Opción de menú para ir a "Categorias"
                 NavigationDrawerItem(
                     label = { Text(text = "Categorias") },
                     selected = false,
@@ -168,8 +167,6 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     },
                 )
                 HorizontalDivider()
-
-                // Opción de menú para ir a "Productos"
                 NavigationDrawerItem(
                     label = { Text(text = "Productos") },
                     selected = false,
@@ -179,7 +176,6 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     },
                 )
                 HorizontalDivider()
-                // Nueva opción de menú para Clientes
                 NavigationDrawerItem(
                     label = { Text(text = "Clientes") },
                     selected = false,
@@ -189,8 +185,6 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     }
                 )
                 HorizontalDivider()
-
-                // Nueva opción de menú para "Consultar Ventas"
                 NavigationDrawerItem(
                     label = { Text(text = "Consultar Ventas") },
                     selected = false,
@@ -208,7 +202,7 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                     title = {
                         Text(
                             titulo,
-                            color = androidx.compose.ui.graphics.Color.White,
+                            color = Color.White,
                             fontWeight = FontWeight.Bold
                         )
                     },
@@ -226,7 +220,6 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                         }
                     },
                     actions = {
-                        // Agregar el ícono del carrito
                         IconButton(onClick = {
                             navController.navigate("carrito")
                         }) {
@@ -236,13 +229,11 @@ fun MenuLateral(viewModelFactory: AppViewModelFactory) {
                                 colorFilter = ColorFilter.tint(Color.White)
                             )
                         }
-
                     }
                 )
-            }) { paddingValues ->
+            }
+        ) { paddingValues ->
             NavManager(navController, viewModelFactory, modifier = Modifier.padding(paddingValues))
         }
     }
 }
-
-

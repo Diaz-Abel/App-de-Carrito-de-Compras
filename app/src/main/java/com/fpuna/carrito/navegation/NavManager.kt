@@ -30,7 +30,7 @@ import com.fpuna.carrito.views.ventas.DetalleVentaView
 import com.fpuna.carrito.views.ventas.FinalizarOrdenView
 import com.fpuna.carrito.views.ventas.ListarVentaProductos
 import com.fpuna.carrito.views.ventas.MapaSeleccionarUbicacion
-
+import com.fpuna.carrito.views.ventas.VerMapaView
 
 
 @Composable
@@ -81,6 +81,24 @@ fun NavManager(
         composable("seleccionarUbicacion") {
             MapaSeleccionarUbicacion(navController = navController)
         }
+
+        composable(
+            route = "verMapa/{lat}/{lng}",
+            arguments = listOf(
+                navArgument("lat") { type = NavType.StringType },
+                navArgument("lng") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val lat = backStackEntry.arguments?.getString("lat")?.toDoubleOrNull()
+            val lng = backStackEntry.arguments?.getString("lng")?.toDoubleOrNull()
+            if (lat != null && lng != null) {
+                VerMapaView(latitude = lat, longitude = lng)
+            } else {
+                // Manejar el caso donde los valores no son válidos
+                Text("Coordenadas inválidas")
+            }
+        }
+
 
 
 
