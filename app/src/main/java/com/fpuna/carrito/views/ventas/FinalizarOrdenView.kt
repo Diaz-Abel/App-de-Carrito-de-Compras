@@ -19,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -43,76 +44,71 @@ fun FinalizarOrdenView(
     productoViewModel: ProductoViewModel
 ) {
     val itemsCarrito = carritoViewModel.itemsCarrito.collectAsState(initial = emptyList()).value
-    var clienteCedula by remember { mutableStateOf("") }
-    var clienteNombre by remember { mutableStateOf("") }
-    var clienteApellido by remember { mutableStateOf("") }
-    var clienteExistente by remember { mutableStateOf(false) }
-    var mostrarCamposCliente by remember { mutableStateOf(false) }
-    var showAlertDialog by remember { mutableStateOf(false) }
-    var alertMessage by remember { mutableStateOf("") }
-    var showPurchaseConfirmation by remember { mutableStateOf(false) }
-    var tipoOperacion by remember { mutableStateOf("pickup") } // "pickup" o "delivery"
-    var direccionEntrega by remember { mutableStateOf("") } // Dirección de entrega
-    var geoPoint by remember { mutableStateOf<GeoPoint?>(null) } // Punto del mapa seleccionado
 
-    // Escuchar cambios del mapa
+    // Estados iniciales con rememberSaveable
+    var clienteCedula by rememberSaveable { mutableStateOf("") }
+    var clienteNombre by rememberSaveable { mutableStateOf("") }
+    var clienteApellido by rememberSaveable { mutableStateOf("") }
+    var clienteExistente by rememberSaveable { mutableStateOf(false) }
+    var mostrarCamposCliente by rememberSaveable { mutableStateOf(false) }
+    var showAlertDialog by rememberSaveable { mutableStateOf(false) }
+    var alertMessage by rememberSaveable { mutableStateOf("") }
+    var showPurchaseConfirmation by rememberSaveable { mutableStateOf(false) }
+    var tipoOperacion by rememberSaveable { mutableStateOf("pickup") }
+    var direccionEntrega by rememberSaveable { mutableStateOf("") }
+    var geoPoint by rememberSaveable { mutableStateOf<GeoPoint?>(null) }
 
+    // Escuchar cambios del mapa y actualizar solo geoPoint
     navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Pair<Double, Double>>("geoPointSeleccionado")
         ?.observeForever { nuevoGeoPoint ->
             geoPoint = nuevoGeoPoint?.let { GeoPoint(it.first, it.second) }
         }
-
-
-
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Campo de Cédula
-        TextField(
-            value = clienteCedula,
-            onValueChange = { clienteCedula = it },
-            label = { Text("Cédula") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        if (!mostrarCamposCliente) {
+            // Campo de Cédula
+            TextField(
+                value = clienteCedula,
+                onValueChange = { clienteCedula = it },
+                label = { Text("Cédula") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Botón para verificar el cliente
-        Button(
-            onClick = {
-                if (clienteCedula.isBlank()) {
-                    alertMessage = "Por favor, ingrese su identificación"
-                    showAlertDialog = true
-                } else {
-                    ventaViewModel.verificarCliente(clienteCedula) { cliente ->
-                        if (cliente != null) {
-                            clienteNombre = cliente.nombre
-                            clienteApellido = cliente.apellido
-                            clienteExistente = true
-                        } else {
-                            clienteNombre = ""
-                            clienteApellido = ""
-                            clienteExistente = false
-                            alertMessage =
-                                "Cliente no encontrado. Por favor, ingresa el nombre y apellido."
-                            showAlertDialog = true
-                        }
-                        mostrarCamposCliente = true
-                    }
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            Text("Verificar Cliente")
-        }
-
-        if (mostrarCamposCliente) {
             Spacer(modifier = Modifier.height(8.dp))
+
+            // Botón para verificar el cliente
+            Button(
+                onClick = {
+                    if (clienteCedula.isBlank()) {
+                        alertMessage = "Por favor, ingrese su identificación"
+                        showAlertDialog = true
+                    } else {
+                        ventaViewModel.verificarCliente(clienteCedula) { cliente ->
+                            if (cliente != null) {
+                                clienteNombre = cliente.nombre
+                                clienteApellido = cliente.apellido
+                                clienteExistente = true
+                            } else {
+                                clienteNombre = ""
+                                clienteApellido = ""
+                                clienteExistente = false
+                                alertMessage = "Cliente no encontrado. Por favor, ingresa el nombre y apellido."
+                                showAlertDialog = true
+                            }
+                            mostrarCamposCliente = true
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Verificar Cliente")
+            }
+        } else {
+            // Campos para cliente, operación y dirección
             TextField(
                 value = clienteNombre,
                 onValueChange = { clienteNombre = it },
@@ -120,8 +116,8 @@ fun FinalizarOrdenView(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !clienteExistente
             )
-
             Spacer(modifier = Modifier.height(8.dp))
+
             TextField(
                 value = clienteApellido,
                 onValueChange = { clienteApellido = it },
@@ -129,10 +125,8 @@ fun FinalizarOrdenView(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !clienteExistente
             )
-
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Selección de tipo de operación
             Text("Seleccione el tipo de operación", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -157,14 +151,17 @@ fun FinalizarOrdenView(
                     Text("Delivery")
                 }
             }
-
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Campo de texto para dirección, si se selecciona "delivery"
             if (tipoOperacion == "delivery") {
                 Button(
                     onClick = {
-                        navController.navigate("seleccionarUbicacion") // Navega al mapa
+                        // Guardar los datos actuales antes de navegar
+                        navController.currentBackStackEntry?.savedStateHandle?.set("clienteNombre", clienteNombre)
+                        navController.currentBackStackEntry?.savedStateHandle?.set("clienteApellido", clienteApellido)
+                        navController.currentBackStackEntry?.savedStateHandle?.set("direccionEntrega", direccionEntrega)
+                        navController.currentBackStackEntry?.savedStateHandle?.set("clienteCedula", clienteCedula)
+                        navController.navigate("seleccionarUbicacion")
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -185,13 +182,12 @@ fun FinalizarOrdenView(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
                     val cliente = Cliente(
-                        cedula = clienteCedula,
+                        cedula = clienteCedula, // Cedula del cliente ahora se incluye
                         nombre = clienteNombre,
                         apellido = clienteApellido
                     )
@@ -200,16 +196,11 @@ fun FinalizarOrdenView(
                         Locale.getDefault()
                     ).format(Calendar.getInstance().time)
 
-                    // Usar las coordenadas seleccionadas o la dirección ingresada
-                    val direccionFinal = if (tipoOperacion == "delivery") {
-                        geoPoint?.let { "Lat: ${it.latitude}, Lng: ${it.longitude}" }
-                    } else {
-                        null // Para "pickup", no se necesita dirección
-                    }
+                    val direccionFinal = geoPoint?.let { "Lat: ${it.latitude}, Lng: ${it.longitude}" }
 
                     val venta = Venta(
                         fecha = fechaCompra,
-                        idCliente = 0, // Asigna el ID del cliente correspondiente
+                        idCliente = 0,
                         total = total,
                         tipoOperacion = tipoOperacion,
                         direccionEntrega = direccionFinal,
@@ -226,13 +217,10 @@ fun FinalizarOrdenView(
                     carritoViewModel.vaciarCarrito()
                     showPurchaseConfirmation = true
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Confirmar Orden")
             }
-
         }
 
         if (showAlertDialog) {
@@ -268,3 +256,4 @@ fun FinalizarOrdenView(
         }
     }
 }
+
