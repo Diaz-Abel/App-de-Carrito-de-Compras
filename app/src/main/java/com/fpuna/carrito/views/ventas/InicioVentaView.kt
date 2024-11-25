@@ -2,7 +2,9 @@ package com.fpuna.carrito.views.ventas
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.view.View
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,8 +17,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -34,11 +40,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.fpuna.carrito.models.Categoria
@@ -49,6 +58,7 @@ import com.fpuna.carrito.utils.ImagePicker
 import com.fpuna.carrito.viewmodel.CarritoViewModel
 import com.fpuna.carrito.viewmodel.ProductoViewModel
 import com.fpuna.carrito.viewmodel.VentaViewModel
+import org.osmdroid.util.GeoPoint
 import java.util.Calendar
 
 
@@ -279,8 +289,10 @@ fun ConsultaVentasView(
     val ventas by ventaViewModel.ventasFlow.collectAsState()
     var filtroFecha by remember { mutableStateOf("") }
     var filtroCedula by remember { mutableStateOf("") }
+    var filtroTipoOperacion by remember { mutableStateOf("") } // Filtro por tipo de operación
     val context = LocalContext.current
     val clientes = remember { mutableStateMapOf<Long, Cliente>() }
+    val tiposOperacion = listOf("Todos", "delivery", "pickup") // Opciones de tipo de operación
 
     LaunchedEffect(ventas) {
         for (venta in ventas) {
@@ -294,12 +306,11 @@ fun ConsultaVentasView(
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
+        // Filtro por fecha
         Text(
             text = "Filtrar por Fecha",
             style = MaterialTheme.typography.bodySmall,
         )
-        Spacer(modifier = Modifier.height(8.dp))
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -308,7 +319,8 @@ fun ConsultaVentasView(
                         filtroFecha = selectedDate
                         ventaViewModel.filtrarVentasPorFecha(filtroFecha)
                     }
-                },
+                }
+                .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -316,15 +328,73 @@ fun ConsultaVentasView(
                 contentDescription = "Seleccionar Fecha",
                 modifier = Modifier.padding(start = 8.dp)
             )
-
             Text(
                 text = if (filtroFecha.isNotEmpty()) filtroFecha else "Fecha",
                 color = if (filtroFecha.isNotEmpty()) Color.Black else Color.Gray,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 10.dp)
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Filtro por Tipo de Operación
+        Text("Filtrar por Tipo de Operación", style = MaterialTheme.typography.bodySmall)
+
+        // Filtro por tipo de operación
+        var expanded by remember { mutableStateOf(false) }
+        var anchorView: View? = null // Variable para referencia al Row
+
+        Box {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = true }
+                    .padding(vertical = 8.dp)
+                    .onGloballyPositioned { coordinates ->
+                        // Obtenemos las coordenadas globales en la raíz de la pantalla
+                        val position = coordinates.positionInRoot()
+                        // Ahora puedes utilizar `position` si necesitas ajustar el DropdownMenu
+                    },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.LocalShipping,
+                    contentDescription = "Seleccionar Tipo de Operación",
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+                Text(
+                    text = if (filtroTipoOperacion.isEmpty()) "Todos" else filtroTipoOperacion,
+                    color = if (filtroTipoOperacion.isEmpty()) Color.Gray else Color.Black,
+                    modifier = Modifier.padding(start = 10.dp)
+                )
+                Spacer(modifier = Modifier.weight(1f))
+            }
+
+            // DropdownMenu
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                offset = DpOffset(
+                    x = 0.dp,
+                    y = 10.dp
+                ) // Desplaza el menú hacia abajo si es necesario
+            ) {
+                tiposOperacion.forEach { tipo ->
+                    DropdownMenuItem(
+                        text = { Text(text = tipo) },
+                        onClick = {
+                            filtroTipoOperacion = if (tipo == "Todos") "" else tipo
+                            expanded = false
+                            ventaViewModel.filtrarVentasPorTipoOperacion(filtroTipoOperacion)
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Filtro por cédula
         TextField(
             value = filtroCedula,
             onValueChange = {
@@ -336,18 +406,29 @@ fun ConsultaVentasView(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Lista de ventas
         LazyColumn {
             items(ventas) { venta ->
                 val cliente = clientes[venta.idCliente]
                 if (cliente != null) {
-                    VentaItem(venta, cliente) {
-                        navController.navigate("detalleVenta/${venta.idVenta}")
-                    }
+                    VentaItem(
+                        venta = venta,
+                        cliente = cliente,
+                        onClick = {
+                            navController.navigate("detalleVenta/${venta.idVenta}")
+                        },
+                        onVerMapaClick = { geoPoint ->
+                            geoPoint?.let {
+                                navController.navigate("verMapa/${it.latitude}/${it.longitude}")
+                            }
+                        }
+                    )
                 }
             }
         }
     }
 }
+
 
 fun showDatePicker(context: Context, onDateSelected: (String) -> Unit) {
     val calendar = Calendar.getInstance()
@@ -371,7 +452,7 @@ fun showDatePicker(context: Context, onDateSelected: (String) -> Unit) {
 
 
 @Composable
-fun VentaItem(venta: Venta, cliente: Cliente, onClick: () -> Unit) {
+fun VentaItem(venta: Venta, cliente: Cliente, onClick: () -> Unit, onVerMapaClick: (GeoPoint?) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -398,9 +479,44 @@ fun VentaItem(venta: Venta, cliente: Cliente, onClick: () -> Unit) {
                 "Cédula: ${cliente.cedula}",
                 style = MaterialTheme.typography.titleMedium
             )
+
+            // Mostrar solo si la venta es de tipo delivery y tiene dirección
+            if (venta.tipoOperacion == "delivery" && venta.direccionEntrega != null) {
+                if (venta.direccionOpcional != null) {
+                    Text(
+                        "Dirección Opcional: ${venta.direccionOpcional}",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+                Text(
+                    "Dirección Exacta: ${venta.direccionEntrega}",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = {
+                        val coordenadas = venta.direccionEntrega.extractCoordinates()
+                        onVerMapaClick(coordenadas)
+                    }
+                ) {
+                    Text("Ver en Mapa")
+                }
+            }
         }
     }
 }
+
+// Función para extraer coordenadas desde un texto en formato "Lat: x, Lng: y"
+fun String.extractCoordinates(): GeoPoint? {
+    val regex = Regex("Lat: ([\\-\\d.]+), Lng: ([\\-\\d.]+)")
+    val matchResult = regex.find(this)
+    return matchResult?.let {
+        val (latitude, longitude) = it.destructured
+        GeoPoint(latitude.toDouble(), longitude.toDouble())
+    }
+}
+
 
 
 @Composable
