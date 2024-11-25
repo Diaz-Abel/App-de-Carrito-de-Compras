@@ -41,6 +41,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -96,14 +98,26 @@ fun ListarVentaProductos(
                 onValueChange = {
                     searchQuery = it
 
-                    // Verificar si la búsqueda tiene coincidencia con alguna categoría
-                    val categoria = listaCategorias.find { categoria ->
-                        categoria.name.contains(searchQuery, ignoreCase = true)
+                    // Si la búsqueda está vacía, limpiar la imagen de la categoría
+                    if (searchQuery.isEmpty()) {
+                        selectedCategoryImage = null
+                    } else {
+                        // Verificar si la búsqueda tiene coincidencia con alguna categoría
+                        val categoria = listaCategorias.find { categoria ->
+                            categoria.name.contains(searchQuery, ignoreCase = true)
+                        }
+                        selectedCategoryImage = categoria?.icono // Asignar la imagen de la categoría si hay coincidencia
                     }
-                    selectedCategoryImage = categoria?.icono // Asignar la imagen de la categoría si hay coincidencia
                 },
                 label = { Text("Buscar por nombre o categoría") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .onFocusChanged { focusState ->
+                        // Cuando el campo de texto pierde el foco, limpiar la imagen de categoría
+                        if (!focusState.isFocused && searchQuery.isEmpty()) {
+                            selectedCategoryImage = null
+                        }
+                    }
             )
 
             // Mostrar la imagen de la categoría seleccionada si hay una coincidencia
