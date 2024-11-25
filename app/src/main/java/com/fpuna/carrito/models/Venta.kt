@@ -2,8 +2,8 @@ package com.fpuna.carrito.models
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
 import androidx.room.Index
+import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "ventas",
@@ -24,5 +24,5 @@ data class Venta(
     val total: Double,
     val tipoOperacion: String, // "pickup" o "delivery"
     val direccionEntrega: String? = null, // Solo para delivery
-
+    val direccionOpcional: String? = null, // Solo para delivery
 )

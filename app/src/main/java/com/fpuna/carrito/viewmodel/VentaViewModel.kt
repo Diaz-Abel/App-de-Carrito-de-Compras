@@ -103,6 +103,19 @@ class VentaViewModel(
         }
     }
 
+    fun filtrarVentasPorTipoOperacion(tipoOperacion: String) {
+        viewModelScope.launch {
+            if (tipoOperacion.isEmpty()) {
+                // Recargar todas las ventas desde la base de datos
+                _ventasFlow.value = ventaDao.getAllVentas()
+            } else {
+                // Filtrar las ventas desde la base de datos directamente
+                _ventasFlow.value = ventaDao.getVentasByTipoOperacion(tipoOperacion)
+            }
+        }
+    }
+
+
     // Obtener detalles de una venta específica
     fun obtenerDetalleVenta(idVenta: Long): Flow<List<DetalleVentaProducto>> {
         return ventaDao.getDetallesDeVenta(idVenta)

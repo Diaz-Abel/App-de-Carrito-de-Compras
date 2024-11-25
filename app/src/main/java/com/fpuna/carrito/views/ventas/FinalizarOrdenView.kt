@@ -212,7 +212,8 @@ fun FinalizarOrdenView(
                         idCliente = 0, // Asigna el ID del cliente correspondiente
                         total = total,
                         tipoOperacion = tipoOperacion,
-                        direccionEntrega = direccionFinal
+                        direccionEntrega = direccionFinal,
+                        direccionOpcional = direccionEntrega
                     )
 
                     ventaViewModel.finalizarOrden(
