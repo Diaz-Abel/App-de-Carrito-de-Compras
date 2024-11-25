@@ -2,6 +2,7 @@ package com.fpuna.carrito.views.ventas
 
 import android.app.DatePickerDialog
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -50,6 +52,7 @@ import com.fpuna.carrito.viewmodel.CarritoViewModel
 import com.fpuna.carrito.viewmodel.ProductoViewModel
 import com.fpuna.carrito.viewmodel.VentaViewModel
 import java.util.Calendar
+import coil3.compose.rememberAsyncImagePainter
 
 
 @Composable
@@ -60,27 +63,48 @@ fun ListarVentaProductos(
 ) {
     val productos by productoViewModel.state.productosFlow.collectAsState()
     var searchQuery by remember { mutableStateOf("") } // Estado para el texto de búsqueda
-
     var selectedProducto by remember { mutableStateOf<Producto?>(null) }
     var cantidad: String by remember { mutableStateOf("") } // cantidad es un String inicialmente vacío
-
     var showAlertDialog by remember { mutableStateOf(false) }
     var alertMessage by remember { mutableStateOf("") }
+
+    // Estado para la categoría seleccionada que coincide con el filtro de búsqueda
+    var selectedCategoryImage by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
             .padding(start = 16.dp, end = 16.dp, top = 10.dp)
             .fillMaxSize()
     ) {
-        // Campo de búsqueda
-        TextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("Buscar por nombre o categoría") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        // Campo de búsqueda con la imagen de la categoría
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextField(
+                value = searchQuery,
+                onValueChange = {
+                    searchQuery = it
+
+                    // Verificar si la búsqueda tiene coincidencia con alguna categoría
+                    val categoria = listaCategorias.find { categoria ->
+                        categoria.name.contains(searchQuery, ignoreCase = true)
+                    }
+                    selectedCategoryImage = categoria?.icono // Asignar la imagen de la categoría si hay coincidencia
+                },
+                label = { Text("Buscar por nombre o categoría") },
+                modifier = Modifier.weight(1f)
+            )
+
+            // Mostrar la imagen de la categoría seleccionada si hay una coincidencia
+            selectedCategoryImage?.let {
+                // Usamos rememberAsyncImagePainter para cargar la imagen
+                Image(painter = rememberAsyncImagePainter(it), contentDescription = "Imagen de la categoría", modifier = Modifier.size(40.dp))
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
+
         if (productos.isEmpty()) {
             Text("No hay productos disponibles.")
         } else {
@@ -92,8 +116,8 @@ fun ListarVentaProductos(
                     producto.nombre.contains(searchQuery, ignoreCase = true) ||
                             (categoria?.name?.contains(searchQuery, ignoreCase = true) == true)
                 }
+
                 items(filteredProductos) { producto ->
-                    // Encontrar la categoría correspondiente al producto
                     val categoria = listaCategorias.find { it.id == producto.idCategoria }
                     ProductoItem(producto, categoria?.name ?: "") {
                         selectedProducto = producto
@@ -103,6 +127,7 @@ fun ListarVentaProductos(
         }
     }
 
+    // Lógica del Modal para agregar al carrito (ya proporcionada previamente)...
     if (selectedProducto != null) {
         ModalCantidadProducto(
             producto = selectedProducto!!,
@@ -132,6 +157,7 @@ fun ListarVentaProductos(
             onDismiss = { selectedProducto = null }
         )
     }
+
     // Diálogo de advertencia
     if (showAlertDialog) {
         AlertDialog(
