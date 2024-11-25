@@ -29,6 +29,9 @@ import com.fpuna.carrito.views.ventas.ConsultaVentasView
 import com.fpuna.carrito.views.ventas.DetalleVentaView
 import com.fpuna.carrito.views.ventas.FinalizarOrdenView
 import com.fpuna.carrito.views.ventas.ListarVentaProductos
+import com.fpuna.carrito.views.ventas.MapaSeleccionarUbicacion
+
+
 
 @Composable
 fun NavManager(
@@ -58,7 +61,6 @@ fun NavManager(
             CarritoView(navController, carritoViewModel, productoViewModel)
         }
 
-        // Nueva ruta para FinalizarOrdenView con el parámetro total
         composable(
             route = "finalizarOrden?total={total}",
             arguments = listOf(navArgument("total") { type = NavType.FloatType })
@@ -74,7 +76,15 @@ fun NavManager(
             )
         }
 
-        // Nueva vista para consultar ventas
+
+        // Ruta para seleccionar la ubicación en el mapa
+        composable("seleccionarUbicacion") {
+            MapaSeleccionarUbicacion(navController = navController)
+        }
+
+
+
+
         composable("consultaVentas") {
             ConsultaVentasView(
                 ventaViewModel = ventaViewModel,
@@ -82,7 +92,6 @@ fun NavManager(
             )
         }
 
-        // Nueva vista para detalle de una venta específica
         composable(
             "detalleVenta/{idVenta}",
             arguments = listOf(navArgument("idVenta") { type = NavType.LongType })
@@ -90,6 +99,7 @@ fun NavManager(
             val idVenta = it.arguments?.getLong("idVenta") ?: 0L
             DetalleVentaView(ventaViewModel, idVenta)
         }
+
 
         // CATEGORIAS
         composable(route = "inicioCategoria") {

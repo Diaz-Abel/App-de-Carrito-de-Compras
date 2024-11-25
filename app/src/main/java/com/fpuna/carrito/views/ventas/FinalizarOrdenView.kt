@@ -1,13 +1,17 @@
 package com.fpuna.carrito.views.ventas
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -25,14 +29,10 @@ import com.fpuna.carrito.models.Venta
 import com.fpuna.carrito.viewmodel.CarritoViewModel
 import com.fpuna.carrito.viewmodel.ProductoViewModel
 import com.fpuna.carrito.viewmodel.VentaViewModel
+import org.osmdroid.util.GeoPoint
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-
 
 @Composable
 fun FinalizarOrdenView(
@@ -53,6 +53,17 @@ fun FinalizarOrdenView(
     var showPurchaseConfirmation by remember { mutableStateOf(false) }
     var tipoOperacion by remember { mutableStateOf("pickup") } // "pickup" o "delivery"
     var direccionEntrega by remember { mutableStateOf("") } // Dirección de entrega
+    var geoPoint by remember { mutableStateOf<GeoPoint?>(null) } // Punto del mapa seleccionado
+
+    // Escuchar cambios del mapa
+
+    navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Pair<Double, Double>>("geoPointSeleccionado")
+        ?.observeForever { nuevoGeoPoint ->
+            geoPoint = nuevoGeoPoint?.let { GeoPoint(it.first, it.second) }
+        }
+
+
+
 
     Column(
         modifier = Modifier
@@ -160,10 +171,17 @@ fun FinalizarOrdenView(
                     Text("Seleccionar ubicación en el mapa")
                 }
 
+                if (geoPoint != null) {
+                    Text(
+                        text = "Ubicación seleccionada: Lat ${geoPoint?.latitude}, Lng ${geoPoint?.longitude}",
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+
                 TextField(
                     value = direccionEntrega,
                     onValueChange = { direccionEntrega = it },
-                    label = { Text("Dirección de entrega") },
+                    label = { Text("Dirección de entrega (opcional)") },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -181,12 +199,15 @@ fun FinalizarOrdenView(
                         "yyyy-MM-dd",
                         Locale.getDefault()
                     ).format(Calendar.getInstance().time)
+                    val direccionFinal = geoPoint?.let {
+                        "Lat: ${it.latitude}, Lng: ${it.longitude}"
+                    } ?: direccionEntrega
                     val venta = Venta(
                         fecha = fechaCompra,
                         idCliente = 0,
                         total = total,
                         tipoOperacion = tipoOperacion,
-                        direccionEntrega = if (tipoOperacion == "delivery") direccionEntrega else null
+                        direccionEntrega = direccionFinal
                     )
 
                     ventaViewModel.finalizarOrden(
@@ -194,7 +215,7 @@ fun FinalizarOrdenView(
                         venta = venta,
                         itemsCarrito = itemsCarrito,
                         tipoOperacion = tipoOperacion,
-                        direccionEntrega = if (tipoOperacion == "delivery") direccionEntrega else null
+                        direccionEntrega = direccionFinal
                     )
                     carritoViewModel.vaciarCarrito()
                     showPurchaseConfirmation = true
