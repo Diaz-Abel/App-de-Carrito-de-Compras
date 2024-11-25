@@ -23,6 +23,6 @@ data class Venta(
     val idCliente: Long, // Cambiado a Long para coincidir con Cliente
     val total: Double,
     val tipoOperacion: String, // "pickup" o "delivery"
-    val direccionEntrega: String? = null // Solo para delivery
+    val direccionEntrega: String? = null, // Solo para delivery
 
 )

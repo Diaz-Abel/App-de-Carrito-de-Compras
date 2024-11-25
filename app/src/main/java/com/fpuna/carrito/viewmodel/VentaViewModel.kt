@@ -121,41 +121,44 @@ class VentaViewModel(
         cliente: Cliente,
         venta: Venta,
         itemsCarrito: List<CarritoItem>,
-        tipoOperacion: String, // Agregamos el tipo de operación
+        tipoOperacion: String, // Tipo de operación ("pickup" o "delivery")
         direccionEntrega: String? = null // Dirección opcional para delivery
     ) {
         viewModelScope.launch {
-            // Paso 1: Verificar si el cliente ya existe, si no, registrarlo
+            // Paso 1: Verificar si el cliente ya existe. Si no, registrar al cliente
             val existingCliente = clienteDao.getClienteByCedula(cliente.cedula)
             val idCliente = if (existingCliente == null) {
-                clienteDao.insert(cliente)
+                clienteDao.insert(cliente) // Inserta el cliente y devuelve el nuevo ID
             } else {
                 existingCliente.idCliente
             }
 
-            // Paso 2: Registrar la venta, incluyendo el tipo de operación y dirección
-            val nuevaVenta = venta.copy(
-                idCliente = idCliente,
+            // Paso 2: Crear una copia de la venta con los datos adicionales
+            val ventaConDatos = venta.copy(
+                idCliente = idCliente, // Relaciona la venta con el ID del cliente
                 tipoOperacion = tipoOperacion,
-                direccionEntrega = if (tipoOperacion == "delivery") direccionEntrega else null // Solo guarda la dirección si es delivery
+                direccionEntrega = if (tipoOperacion == "delivery") direccionEntrega else null // Solo guarda la dirección si es "delivery"
             )
-            val idVenta = ventaDao.insertVenta(nuevaVenta)
+
+            // Inserta la venta en la base de datos
+            val idVenta = ventaDao.insertVenta(ventaConDatos)
 
             // Paso 3: Registrar los detalles de cada producto en el carrito
             itemsCarrito.forEach { item ->
                 val producto = productoDao.obtenerProductoPorId(item.idProducto)
                 producto?.let {
                     val detalleVenta = DetalleVenta(
-                        idVenta = idVenta,
+                        idVenta = idVenta, // Asocia los detalles a la venta
                         idProducto = item.idProducto.toLong(),
                         cantidad = item.cantidad,
-                        precio = it.precioVenta // Usa el precio del producto
+                        precio = it.precioVenta // Usa el precio del producto actual
                     )
                     ventaDao.insertDetalleVenta(detalleVenta)
                 }
             }
         }
     }
+
 
 
     // Obtener cliente por ID

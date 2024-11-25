@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -49,6 +50,7 @@ import com.fpuna.carrito.utils.ImagePicker
 import com.fpuna.carrito.viewmodel.CarritoViewModel
 import com.fpuna.carrito.viewmodel.ProductoViewModel
 import com.fpuna.carrito.viewmodel.VentaViewModel
+import org.osmdroid.util.GeoPoint
 import java.util.Calendar
 
 
@@ -340,12 +342,22 @@ fun ConsultaVentasView(
             items(ventas) { venta ->
                 val cliente = clientes[venta.idCliente]
                 if (cliente != null) {
-                    VentaItem(venta, cliente) {
-                        navController.navigate("detalleVenta/${venta.idVenta}")
-                    }
+                    VentaItem(
+                        venta = venta,
+                        cliente = cliente,
+                        onClick = {
+                            navController.navigate("detalleVenta/${venta.idVenta}")
+                        },
+                        onVerMapaClick = { geoPoint ->
+                            geoPoint?.let {
+                                navController.navigate("verMapa/${it.latitude}/${it.longitude}")
+                            }
+                        }
+                    )
                 }
             }
         }
+
     }
 }
 
@@ -371,7 +383,7 @@ fun showDatePicker(context: Context, onDateSelected: (String) -> Unit) {
 
 
 @Composable
-fun VentaItem(venta: Venta, cliente: Cliente, onClick: () -> Unit) {
+fun VentaItem(venta: Venta, cliente: Cliente, onClick: () -> Unit, onVerMapaClick: (GeoPoint?) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -398,9 +410,38 @@ fun VentaItem(venta: Venta, cliente: Cliente, onClick: () -> Unit) {
                 "Cédula: ${cliente.cedula}",
                 style = MaterialTheme.typography.titleMedium
             )
+
+            // Mostrar solo si la venta es de tipo delivery y tiene dirección
+            if (venta.tipoOperacion == "delivery" && venta.direccionEntrega != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "Dirección: ${venta.direccionEntrega}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = {
+                        val coordenadas = venta.direccionEntrega.extractCoordinates()
+                        onVerMapaClick(coordenadas)
+                    }
+                ) {
+                    Text("Ver en Mapa")
+                }
+            }
         }
     }
 }
+
+// Función para extraer coordenadas desde un texto en formato "Lat: x, Lng: y"
+fun String.extractCoordinates(): GeoPoint? {
+    val regex = Regex("Lat: ([\\-\\d.]+), Lng: ([\\-\\d.]+)")
+    val matchResult = regex.find(this)
+    return matchResult?.let {
+        val (latitude, longitude) = it.destructured
+        GeoPoint(latitude.toDouble(), longitude.toDouble())
+    }
+}
+
 
 
 @Composable
