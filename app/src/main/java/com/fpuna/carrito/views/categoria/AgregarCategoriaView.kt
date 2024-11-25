@@ -20,10 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.rememberAsyncImagePainter
 import com.fpuna.carrito.models.Categoria
+import com.fpuna.carrito.utils.copyCategoryImageToInternalStorage
 import com.fpuna.carrito.viewmodel.CategoriaViewModel
 
 
@@ -43,11 +45,20 @@ fun ContentAgregarView(
     var nombre by remember { mutableStateOf("") }
     var iconoUri by remember { mutableStateOf<String?>(null) } // Guarda la URI de la imagen
 
+    // Obtén el contexto usando LocalContext
+    val context = LocalContext.current
+
     // ActivityResult para seleccionar una imagen
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        iconoUri = uri?.toString()
+        // Llamar a la función para copiar la imagen de categoría
+        val copiedUri = uri?.let { sourceUri ->
+            copyCategoryImageToInternalStorage(context = context, sourceUri = sourceUri)
+        }
+
+        // Si la imagen fue copiada con éxito, guarda la nueva URI
+        iconoUri = copiedUri?.toString()
     }
 
     Column(
@@ -90,7 +101,7 @@ fun ContentAgregarView(
             onClick = {
                 val categoria = Categoria(
                     name = nombre,
-                    icono = iconoUri // Guarda la URI seleccionada
+                    icono = iconoUri // Guarda la URI copiada
                 )
                 viewModel.agregarCategoria(categoria)
                 navController.popBackStack()
